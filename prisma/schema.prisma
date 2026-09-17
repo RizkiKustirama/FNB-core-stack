@@ -1,0 +1,192 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CASHIER
+}
+
+enum Unit {
+  GRAM
+  ML
+  PCS
+}
+
+enum InventoryLogType {
+  IN
+  OUT
+}
+
+enum InventoryRefType {
+  POS_DEDUCTION
+  OPNAME_ADJUSTMENT
+  WASTE
+  EXPIRED
+  INITIAL
+}
+
+enum CashflowType {
+  IN
+  OUT
+}
+
+enum CashflowCategory {
+  POS_SALES
+  SUPPLIES_PURCHASE
+  UTILITIES
+  SALARY
+  OTHER
+}
+
+enum PaymentMethod {
+  CASH
+  QRIS
+  TRANSFER
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  passwordHash String
+  role         Role          @default(CASHIER)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  orders       Order[]
+  cashflows    CashflowLog[]
+
+  @@map("users")
+}
+
+model Category {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String       @id @default(uuid())
+  name        String
+  price       Decimal      @db.Decimal(12, 2)
+  imageUrl    String?
+  isActive    Boolean      @default(true)
+  categoryId  String
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  recipes     RecipeItem[]
+  orderItems  OrderItem[]
+
+  @@map("products")
+}
+
+model RawMaterial {
+  id           String         @id @default(uuid())
+  name         String
+  unit         Unit           @default(GRAM)
+  currentStock Decimal        @default(0) @db.Decimal(12, 2)
+  minStock     Decimal        @default(0) @db.Decimal(12, 2)
+  category     String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  recipeItems  RecipeItem[]
+  logs         InventoryLog[]
+
+  @@map("raw_materials")
+}
+
+model RecipeItem {
+  id             String      @id @default(uuid())
+  productId      String
+  product        Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  rawMaterialId  String
+  rawMaterial    RawMaterial @relation(fields: [rawMaterialId], references: [id], onDelete: Cascade)
+  quantityNeeded Decimal     @db.Decimal(12, 4)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  @@unique([productId, rawMaterialId])
+  @@map("recipe_items")
+}
+
+model Order {
+  id            String        @id @default(uuid())
+  orderNumber   String        @unique
+  totalAmount   Decimal       @db.Decimal(12, 2)
+  cashReceived  Decimal?      @db.Decimal(12, 2)
+  changeAmount  Decimal?      @db.Decimal(12, 2)
+  paymentMethod PaymentMethod @default(CASH)
+  status        OrderStatus   @default(PAID)
+  cashierId     String?
+  cashier       User?         @relation(fields: [cashierId], references: [id], onDelete: SetNull)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  items         OrderItem[]
+  cashflowLog   CashflowLog?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  qty       Int
+  price     Decimal  @db.Decimal(12, 2)
+  subtotal  Decimal  @db.Decimal(12, 2)
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@map("order_items")
+}
+
+model InventoryLog {
+  id            String           @id @default(uuid())
+  rawMaterialId String
+  rawMaterial   RawMaterial      @relation(fields: [rawMaterialId], references: [id], onDelete: Cascade)
+  type          InventoryLogType
+  qty           Decimal          @db.Decimal(12, 4)
+  referenceType InventoryRefType
+  referenceId   String?
+  reason        String?
+  createdAt     DateTime         @default(now())
+
+  @@map("inventory_logs")
+}
+
+model CashflowLog {
+  id            String           @id @default(uuid())
+  type          CashflowType
+  category      CashflowCategory
+  amount        Decimal          @db.Decimal(12, 2)
+  proofImageUrl String?
+  referenceId   String?          @unique
+  order         Order?           @relation(fields: [referenceId], references: [id], onDelete: SetNull)
+  description   String?
+  userId        String?
+  user          User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt     DateTime         @default(now())
+
+  @@map("cashflow_logs")
+}

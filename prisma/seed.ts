@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Seeding initial data...');
+  console.log('Seeding initial data for PostgreSQL...');
 
   // 1. Create Users
   const adminPassword = await bcrypt.hash('admin123', 10);

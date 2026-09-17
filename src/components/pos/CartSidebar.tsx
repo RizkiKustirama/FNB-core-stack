@@ -3,13 +3,15 @@
 import React from 'react';
 import { useCartStore } from '@/store/useCartStore';
 import { formatCurrency } from '@/lib/utils';
-import { ShoppingBag, Trash2, Plus, Minus, CreditCard, Edit3 } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, CreditCard, Edit3, X } from 'lucide-react';
 
 interface CartSidebarProps {
   onOpenCheckout: () => void;
+  isMobileDrawer?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export function CartSidebar({ onOpenCheckout }: CartSidebarProps) {
+export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: CartSidebarProps) {
   const { items, removeItem, updateQty, updateNote, clearCart, getSubtotal, getTotalAmount } =
     useCartStore();
 
@@ -19,7 +21,7 @@ export function CartSidebar({ onOpenCheckout }: CartSidebarProps) {
   return (
     <div className="w-full lg:w-96 bg-white border-l border-slate-200 flex flex-col h-full shadow-lg">
       {/* Header Cart */}
-      <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+      <div className="p-3.5 sm:p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
         <div className="flex items-center gap-2">
           <ShoppingBag className="w-5 h-5 text-blue-600" />
           <h2 className="text-sm font-bold text-slate-800">Keranjang Pesanan</h2>
@@ -27,19 +29,30 @@ export function CartSidebar({ onOpenCheckout }: CartSidebarProps) {
             {items.reduce((sum, item) => sum + item.qty, 0)} item
           </span>
         </div>
-        {items.length > 0 && (
-          <button
-            onClick={clearCart}
-            className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 flex items-center gap-1 transition"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Kosongkan</span>
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {items.length > 0 && (
+            <button
+              onClick={clearCart}
+              className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 flex items-center gap-1 transition"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Kosongkan</span>
+            </button>
+          )}
+
+          {isMobileDrawer && (
+            <button
+              onClick={onCloseMobile}
+              className="lg:hidden p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Cart Items List */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-3">
+      <div className="flex-1 p-3.5 sm:p-4 overflow-y-auto space-y-3">
         {items.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-slate-400 py-12 text-center">
             <ShoppingBag className="w-12 h-12 text-slate-200 mb-2 stroke-1" />
@@ -115,7 +128,7 @@ export function CartSidebar({ onOpenCheckout }: CartSidebarProps) {
 
       {/* Footer Calculation & Checkout Button */}
       {items.length > 0 && (
-        <div className="p-4 bg-slate-50 border-t border-slate-200 space-y-3">
+        <div className="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 space-y-3">
           <div className="space-y-1 text-xs">
             <div className="flex justify-between text-slate-500">
               <span>Subtotal</span>
@@ -132,7 +145,10 @@ export function CartSidebar({ onOpenCheckout }: CartSidebarProps) {
           </div>
 
           <button
-            onClick={onOpenCheckout}
+            onClick={() => {
+              if (onCloseMobile) onCloseMobile();
+              onOpenCheckout();
+            }}
             className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition active:scale-[0.99]"
           >
             <CreditCard className="w-4 h-4" />

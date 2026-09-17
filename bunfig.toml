@@ -1,0 +1,8 @@
+# Bun configuration file for Web F&B ERP & POS system
+
+[install]
+# Optional: Lockfile behavior
+lockfile = true
+
+[run]
+# Bun run configuration

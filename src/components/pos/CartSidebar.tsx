@@ -3,7 +3,7 @@
 import React from 'react';
 import { useCartStore } from '@/store/useCartStore';
 import { formatCurrency } from '@/lib/utils';
-import { ShoppingBag, Trash2, Plus, Minus, CreditCard, Edit3, X, Utensils } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, CreditCard, Edit3, X } from 'lucide-react';
 
 interface CartSidebarProps {
   onOpenCheckout: () => void;
@@ -16,34 +16,34 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
     useCartStore();
 
   const subtotal = getSubtotal();
-  const tax = Math.round(subtotal * 0.1); // PB1 Tax 10%
   const total = getTotalAmount();
 
   return (
-    <div className="w-full lg:w-[400px] bg-[#fff8ef] border-l border-[#e2beba]/30 flex flex-col h-full shadow-[0_8px_32px_rgba(0,0,0,0.08)] shrink-0 overflow-hidden">
+    <div className="w-full lg:w-96 bg-white border-l border-slate-200 flex flex-col h-full shadow-lg">
       {/* Header Cart */}
-      <div className="p-5 border-b border-[#e2beba]/30 flex items-center justify-between bg-[#fff8ef] shrink-0">
-        <div className="flex items-center gap-2.5">
-          <h2 className="text-xl font-bold text-[#1e1b13]">Keranjang Pesanan</h2>
-          <span className="bg-[#b22222]/10 text-[#b22222] text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-            {items.reduce((sum, item) => sum + item.qty, 0)} items
+      <div className="p-3.5 sm:p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+        <div className="flex items-center gap-2">
+          <ShoppingBag className="w-5 h-5 text-blue-600" />
+          <h2 className="text-sm font-bold text-slate-800">Keranjang Pesanan</h2>
+          <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+            {items.reduce((sum, item) => sum + item.qty, 0)} item
           </span>
         </div>
         <div className="flex items-center gap-2">
           {items.length > 0 && (
             <button
               onClick={clearCart}
-              className="text-xs font-bold text-[#b22222] hover:underline flex items-center gap-1 transition"
+              className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 flex items-center gap-1 transition"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>KOSONGKAN</span>
+              <span>Kosongkan</span>
             </button>
           )}
 
           {isMobileDrawer && (
             <button
               onClick={onCloseMobile}
-              className="lg:hidden p-1.5 text-[#5a403e] hover:bg-[#efe7d9] rounded-xl transition"
+              className="lg:hidden p-1 text-slate-400 hover:text-slate-600 rounded-lg"
             >
               <X className="w-5 h-5" />
             </button>
@@ -52,12 +52,12 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
       </div>
 
       {/* Cart Items List */}
-      <div className="flex-1 p-5 overflow-y-auto space-y-4">
+      <div className="flex-1 p-3.5 sm:p-4 overflow-y-auto space-y-3">
         {items.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-[#5a403e] py-12 text-center">
-            <ShoppingBag className="w-14 h-14 text-[#e2beba] mb-3 stroke-1" />
-            <p className="text-sm font-bold text-[#1e1b13]">Keranjang Masih Kosong</p>
-            <p className="text-xs text-[#5a403e] max-w-[220px] mt-1">
+          <div className="h-full flex flex-col items-center justify-center text-slate-400 py-12 text-center">
+            <ShoppingBag className="w-12 h-12 text-slate-200 mb-2 stroke-1" />
+            <p className="text-xs font-medium text-slate-500">Keranjang masih kosong</p>
+            <p className="text-[11px] text-slate-400 max-w-[200px] mt-1">
               Pilih menu dari katalog di sebelah kiri untuk menambahkan ke pesanan.
             </p>
           </div>
@@ -65,59 +65,59 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
           items.map((item) => (
             <div
               key={item.productId}
-              className="p-4 bg-[#f5edde] rounded-2xl border border-[#e2beba]/30 space-y-2.5 shadow-sm hover:border-[#e2beba] transition"
+              className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 hover:border-slate-300 transition"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1">
-                  <h4 className="text-xs font-bold text-[#1e1b13] leading-tight">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-800 leading-tight">
                     {item.name}
                   </h4>
-                  <div className="text-xs font-bold text-[#b22222] mt-1">
-                    {formatCurrency(item.price)}
+                  <div className="text-[11px] text-slate-500 mt-0.5">
+                    {formatCurrency(item.price)} x {item.qty}
                   </div>
                 </div>
                 <button
                   onClick={() => removeItem(item.productId)}
-                  className="text-[#5a403e] hover:text-[#b22222] transition p-1"
-                  title="Hapus item"
+                  className="text-slate-400 hover:text-rose-500 transition p-1"
+                  title="Hapus dari keranjang"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
 
               {/* Note input */}
               <div className="flex items-center gap-1.5">
-                <Edit3 className="w-3.5 h-3.5 text-[#5a403e] shrink-0" />
+                <Edit3 className="w-3 h-3 text-slate-400 shrink-0" />
                 <input
                   type="text"
                   value={item.note || ''}
                   onChange={(e) => updateNote(item.productId, e.target.value)}
-                  placeholder="Catatan pesanan (misal: Tanpa daun bawang)..."
-                  className="w-full text-xs bg-[#fff8ef] border border-[#e2beba]/40 rounded-xl px-2.5 py-1 text-[#1e1b13] placeholder-[#5a403e]/50 focus:outline-none focus:ring-1 focus:ring-[#b22222]"
+                  placeholder="Catatan pesanan (misal: Pedas)..."
+                  className="w-full text-[11px] bg-white border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400"
                 />
               </div>
 
-              {/* Qty Pill Counter & Item Total */}
-              <div className="flex items-center justify-between pt-2 border-t border-[#e2beba]/30">
-                <div className="flex items-center gap-2 bg-[#fff8ef] border border-[#e2beba]/40 rounded-full p-1 shadow-sm">
+              {/* Qty Counter & Subtotal */}
+              <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
+                <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg p-0.5">
                   <button
                     onClick={() => updateQty(item.productId, item.qty - 1)}
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-[#1e1b13] hover:bg-[#efe7d9] transition"
+                    className="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 transition"
                   >
-                    <Minus className="w-3.5 h-3.5" />
+                    <Minus className="w-3 h-3" />
                   </button>
-                  <span className="text-xs font-bold text-[#1e1b13] px-2 min-w-[20px] text-center">
+                  <span className="text-xs font-bold text-slate-800 px-2 min-w-[20px] text-center">
                     {item.qty}
                   </span>
                   <button
                     onClick={() => updateQty(item.productId, item.qty + 1)}
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-[#1e1b13] hover:bg-[#efe7d9] transition"
+                    className="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 transition"
                   >
-                    <Plus className="w-3.5 h-3.5" />
+                    <Plus className="w-3 h-3" />
                   </button>
                 </div>
 
-                <div className="text-sm font-bold text-[#1e1b13]">
+                <div className="text-xs font-bold text-slate-800">
                   {formatCurrency(item.price * item.qty)}
                 </div>
               </div>
@@ -126,27 +126,21 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
         )}
       </div>
 
-      {/* Footer Calculation & Order Button */}
+      {/* Footer Calculation & Checkout Button */}
       {items.length > 0 && (
-        <div className="p-5 bg-[#fff8ef] border-t border-[#e2beba]/30 space-y-4 shrink-0 shadow-lg">
-          <div className="space-y-2 text-xs">
-            <div className="flex justify-between text-[#5a403e]">
+        <div className="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 space-y-3">
+          <div className="space-y-1 text-xs">
+            <div className="flex justify-between text-slate-500">
               <span>Subtotal</span>
-              <span className="font-bold text-[#1e1b13]">{formatCurrency(subtotal)}</span>
+              <span>{formatCurrency(subtotal)}</span>
             </div>
-            <div className="flex justify-between text-[#5a403e]">
-              <span>PB1 Tax (10%)</span>
-              <span className="font-bold text-[#1e1b13]">{formatCurrency(tax)}</span>
+            <div className="flex justify-between text-slate-500">
+              <span>Pajak / Service</span>
+              <span>Rp 0</span>
             </div>
-            <div className="pt-3 border-t border-[#e2beba]/30 flex justify-between items-end">
-              <div className="flex flex-col">
-                <span className="text-[10px] font-extrabold text-[#5a403e] uppercase tracking-wider">
-                  TOTAL BILL
-                </span>
-                <span className="text-2xl font-extrabold text-[#b22222] tracking-tight leading-none mt-1">
-                  {formatCurrency(total)}
-                </span>
-              </div>
+            <div className="flex justify-between font-bold text-sm text-slate-900 pt-2 border-t border-slate-200">
+              <span>Total Tagihan</span>
+              <span className="text-blue-600">{formatCurrency(total)}</span>
             </div>
           </div>
 
@@ -155,14 +149,13 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
               if (onCloseMobile) onCloseMobile();
               onOpenCheckout();
             }}
-            className="w-full h-14 bg-[#b22222] hover:bg-[#8f000d] text-white font-bold text-base rounded-2xl shadow-lg shadow-[#b22222]/20 flex items-center justify-center gap-2.5 transition active:scale-[0.99]"
+            className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition active:scale-[0.99]"
           >
-            <CreditCard className="w-5 h-5" />
-            <span>PROSES PEMBAYARAN ({formatCurrency(total)})</span>
+            <CreditCard className="w-4 h-4" />
+            <span>BAYAR {formatCurrency(total)}</span>
           </button>
         </div>
       )}
     </div>
   );
 }
-

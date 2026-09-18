@@ -15,7 +15,6 @@ import {
   Check,
   AlertCircle,
   Loader2,
-  Coffee,
   Utensils,
   Search,
 } from 'lucide-react';
@@ -293,28 +292,28 @@ export default function ProductsPage() {
   return (
     <div className="space-y-6">
       {/* Top Banner Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#fff8ef] p-6 rounded-3xl border border-[#e2beba]/30 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
         <div>
-          <h1 className="text-2xl font-extrabold text-[#1e1b13] flex items-center gap-2.5">
-            <UtensilsCrossed className="w-6 h-6 text-[#b22222]" />
-            Katalog Menu & Resep BoM
+          <h1 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <UtensilsCrossed className="w-6 h-6 text-blue-600" />
+            Katalog Menu & Resep Bill of Materials (BoM)
           </h1>
-          <p className="text-xs text-[#5a403e] mt-1 font-medium">
-            Kelola data menu jualan, upload gambar display POS, dan racikan resep bahan baku (Bill of Materials).
+          <p className="text-xs text-slate-500 mt-1">
+            Kelola data menu jualan, upload foto display POS, dan racikan resep bahan baku mentah per porsi.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
             onClick={fetchAllData}
-            className="p-3 bg-[#f5edde] hover:bg-[#efe7d9] text-[#1e1b13] rounded-2xl border border-[#e2beba]/30 transition"
+            className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition"
             title="Refresh Data"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
           <button
             onClick={openCreateModal}
-            className="px-5 py-3 bg-[#b22222] hover:bg-[#8f000d] text-white font-bold text-xs rounded-2xl shadow-md shadow-[#b22222]/20 flex items-center gap-2 transition active:scale-[0.99]"
+            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 flex items-center gap-2 transition"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Menu Baru</span>
@@ -323,14 +322,14 @@ export default function ProductsPage() {
       </div>
 
       {/* Filter & Search Controls */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#fff8ef] p-4 rounded-3xl border border-[#e2beba]/30 shadow-[0_2px_12px_rgba(0,0,0,0.04)]">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
         <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 scrollbar-hide">
           <button
             onClick={() => setSelectedCategory('ALL')}
-            className={`px-4 py-2 rounded-full text-xs font-bold transition ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
               selectedCategory === 'ALL'
-                ? 'bg-[#b22222] text-white shadow-sm'
-                : 'bg-[#f5edde] text-[#1e1b13] hover:bg-[#efe7d9] border border-[#e2beba]/30'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             Semua ({products.length})
@@ -339,10 +338,10 @@ export default function ProductsPage() {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-2 rounded-full text-xs font-bold transition ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
                 selectedCategory === cat.id
-                  ? 'bg-[#b22222] text-white shadow-sm'
-                  : 'bg-[#f5edde] text-[#1e1b13] hover:bg-[#efe7d9] border border-[#e2beba]/30'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
               {cat.name}
@@ -351,58 +350,58 @@ export default function ProductsPage() {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-[#5a403e] absolute left-3.5 top-3" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari nama menu..."
-            className="w-full pl-10 pr-4 py-2 bg-[#f5edde] border border-[#e2beba]/40 rounded-full text-xs text-[#1e1b13] placeholder-[#5a403e]/60 focus:outline-none focus:ring-2 focus:ring-[#b22222] transition"
+            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
           />
         </div>
       </div>
 
       {/* Products Table Card */}
-      <div className="bg-[#fff8ef] rounded-3xl border border-[#e2beba]/30 shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
-        <div className="p-5 border-b border-[#e2beba]/30 font-extrabold text-sm text-[#1e1b13] flex items-center justify-between">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div className="p-4 border-b border-slate-100 font-bold text-xs text-slate-700 flex items-center justify-between">
           <span>Daftar Menu Jualan & Racikan Resep</span>
-          <span className="text-xs text-[#5a403e] font-semibold">
-            {filteredProducts.length} item ditampilkan
+          <span className="text-slate-400 font-normal">
+            {filteredProducts.length} item
           </span>
         </div>
 
         {loading ? (
-          <div className="p-12 text-center text-xs text-[#5a403e] font-semibold">
-            <Loader2 className="w-6 h-6 animate-spin text-[#b22222] mx-auto mb-2" />
-            Memuat data produk...
+          <div className="p-8 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+            <span>Memuat data produk...</span>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="p-12 text-center text-xs text-[#5a403e]">
-            <UtensilsCrossed className="w-12 h-12 text-[#e2beba] mx-auto mb-2 stroke-1" />
-            <p className="font-bold text-[#1e1b13]">Belum ada data menu jualan.</p>
-            <p className="text-[11px] text-[#5a403e] mt-1">
+          <div className="p-12 text-center text-xs text-slate-400">
+            <UtensilsCrossed className="w-12 h-12 text-slate-300 mx-auto mb-2 stroke-1" />
+            <p className="font-bold text-slate-700">Belum ada data menu jualan.</p>
+            <p className="text-slate-400 mt-1">
               Klik tombol &quot;Tambah Menu Baru&quot; di atas untuk mulai memasukkan menu.
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-[#1e1b13]">
-              <thead className="bg-[#f5edde] text-[#5a403e] font-extrabold uppercase tracking-wider text-[10px] border-b border-[#e2beba]/30">
+            <table className="w-full text-left text-xs text-slate-600">
+              <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
                 <tr>
-                  <th className="p-4 pl-6">Foto & Menu</th>
-                  <th className="p-4">Kategori</th>
-                  <th className="p-4">Harga Jual</th>
-                  <th className="p-4">Racikan Resep (BoM)</th>
-                  <th className="p-4">Status POS</th>
-                  <th className="p-4 pr-6 text-right">Aksi</th>
+                  <th className="p-3.5 pl-5">Foto & Menu</th>
+                  <th className="p-3.5">Kategori</th>
+                  <th className="p-3.5">Harga Jual</th>
+                  <th className="p-3.5">Racikan Resep (BoM)</th>
+                  <th className="p-3.5">Status POS</th>
+                  <th className="p-3.5 pr-5 text-right">Aksi</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e2beba]/20">
+              <tbody className="divide-y divide-slate-100">
                 {filteredProducts.map((prod) => (
-                  <tr key={prod.id} className="hover:bg-[#f5edde]/50 transition">
-                    <td className="p-4 pl-6 font-bold text-[#1e1b13]">
+                  <tr key={prod.id} className="hover:bg-slate-50/80 transition">
+                    <td className="p-3.5 pl-5 font-bold text-slate-900">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-[#f5edde] border border-[#e2beba]/40 overflow-hidden shrink-0 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
                           {prod.imageUrl ? (
                             <img
                               src={prod.imageUrl}
@@ -410,60 +409,60 @@ export default function ProductsPage() {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <Utensils className="w-5 h-5 text-[#8e706d]" />
+                            <Utensils className="w-4 h-4 text-slate-400" />
                           )}
                         </div>
                         <div>
-                          <div className="font-extrabold text-sm text-[#1e1b13]">{prod.name}</div>
-                          <div className="text-[10px] text-[#5a403e] font-medium">
+                          <div className="font-bold text-slate-900">{prod.name}</div>
+                          <div className="text-[10px] text-slate-400 font-normal">
                             ID: {prod.id.substring(0, 8)}...
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4 font-semibold text-[#5a403e]">
-                      <span className="bg-[#f5edde] border border-[#e2beba]/30 text-[#1e1b13] px-2.5 py-1 rounded-xl text-[11px] font-bold">
+                    <td className="p-3.5 text-slate-600">
+                      <span className="bg-slate-100 border border-slate-200 text-slate-700 px-2 py-0.5 rounded-lg text-[11px] font-semibold">
                         {prod.category.name}
                       </span>
                     </td>
-                    <td className="p-4 font-extrabold text-[#b22222] text-sm">
+                    <td className="p-3.5 font-bold text-blue-600">
                       {formatCurrency(prod.price)}
                     </td>
-                    <td className="p-4">
+                    <td className="p-3.5">
                       <button
                         onClick={() => setSelectedProductView(prod)}
-                        className="bg-[#f5edde] hover:bg-[#efe7d9] text-[#1e1b13] border border-[#e2beba]/30 font-bold px-3 py-1.5 rounded-xl text-[11px] inline-flex items-center gap-1.5 transition"
+                        className="bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-2.5 py-1 rounded-lg text-[11px] inline-flex items-center gap-1 transition"
                       >
-                        <ChefHat className="w-3.5 h-3.5 text-[#b22222]" />
+                        <ChefHat className="w-3.5 h-3.5 text-blue-600" />
                         <span>{prod.recipes?.length || 0} Bahan Baku</span>
                       </button>
                     </td>
-                    <td className="p-4">
+                    <td className="p-3.5">
                       {prod.isActive ? (
-                        <span className="bg-[#b22222]/10 text-[#b22222] border border-[#b22222]/20 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                        <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
                           Aktif
                         </span>
                       ) : (
-                        <span className="bg-[#f5edde] text-[#5a403e] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                        <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full">
                           Non-Aktif
                         </span>
                       )}
                     </td>
-                    <td className="p-4 pr-6 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <td className="p-3.5 pr-5 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => openEditModal(prod)}
-                          className="p-2 bg-[#f5edde] hover:bg-[#efe7d9] text-[#1e1b13] rounded-xl border border-[#e2beba]/30 transition"
+                          className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition"
                           title="Edit Menu"
                         >
-                          <Pencil className="w-4 h-4 text-[#5a403e]" />
+                          <Pencil className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => handleDelete(prod.id, prod.name)}
-                          className="p-2 bg-[#ffdad6]/60 hover:bg-[#ffdad6] text-[#ba1a1a] rounded-xl border border-[#ba1a1a]/20 transition"
+                          className="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition"
                           title="Hapus Menu"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </td>
@@ -477,43 +476,43 @@ export default function ProductsPage() {
 
       {/* Modal Detail BoM Recipe View */}
       {selectedProductView && (
-        <div className="fixed inset-0 z-50 bg-[#1e1b13]/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#fff8ef] rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 border border-[#e2beba]/30">
-            <div className="flex items-start justify-between border-b border-[#e2beba]/30 pb-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-3">
               <div>
-                <span className="text-[10px] font-extrabold text-[#b22222] uppercase tracking-wider">
-                  BILL OF MATERIALS (BOM)
+                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">
+                  Bill of Materials (BoM)
                 </span>
-                <h3 className="text-lg font-extrabold text-[#1e1b13]">{selectedProductView.name}</h3>
-                <p className="text-xs text-[#5a403e] font-semibold mt-0.5">
+                <h3 className="text-base font-bold text-slate-900">{selectedProductView.name}</h3>
+                <p className="text-xs text-slate-500">
                   Harga Jual: {formatCurrency(selectedProductView.price)}
                 </p>
               </div>
               <button
                 onClick={() => setSelectedProductView(null)}
-                className="p-2 text-[#5a403e] hover:text-[#1e1b13] rounded-xl transition"
+                className="text-slate-400 hover:text-slate-600 p-1"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3">
-              <span className="text-xs font-bold text-[#1e1b13]">Komponen Bahan Baku Per Porsi:</span>
-              <div className="bg-[#f5edde] rounded-2xl p-4 border border-[#e2beba]/30 space-y-2.5">
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-slate-700">Komponen Bahan Baku Per Porsi:</span>
+              <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
                 {selectedProductView.recipes && selectedProductView.recipes.length > 0 ? (
                   selectedProductView.recipes.map((item) => (
                     <div
                       key={item.id}
-                      className="flex justify-between items-center text-xs font-bold text-[#1e1b13] bg-[#fff8ef] p-2.5 rounded-xl border border-[#e2beba]/30 shadow-sm"
+                      className="flex justify-between items-center text-xs font-semibold text-slate-800 bg-white p-2 rounded-lg border border-slate-200/80 shadow-sm"
                     >
                       <span>{item.rawMaterial.name}</span>
-                      <span className="bg-[#b22222]/10 text-[#b22222] px-2.5 py-1 rounded-lg text-xs font-extrabold">
+                      <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md text-xs font-bold">
                         {item.quantityNeeded} {item.rawMaterial.unit}
                       </span>
                     </div>
                   ))
                 ) : (
-                  <p className="text-xs text-[#5a403e] text-center py-3">
+                  <p className="text-xs text-slate-400 text-center py-2">
                     Belum ada racikan bahan baku terhubung.
                   </p>
                 )}
@@ -522,7 +521,7 @@ export default function ProductsPage() {
 
             <button
               onClick={() => setSelectedProductView(null)}
-              className="w-full py-3 bg-[#b22222] hover:bg-[#8f000d] text-white font-bold text-xs rounded-2xl transition shadow-md shadow-[#b22222]/20"
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition"
             >
               Tutup
             </button>
@@ -532,27 +531,27 @@ export default function ProductsPage() {
 
       {/* Modal Form Create / Edit Product */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-50 bg-[#1e1b13]/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#fff8ef] rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-5 border border-[#e2beba]/30 my-8">
-            <div className="flex items-center justify-between border-b border-[#e2beba]/30 pb-4">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-5 my-8">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <h3 className="text-lg font-extrabold text-[#1e1b13]">
+                <h3 className="text-base font-bold text-slate-900">
                   {editingProduct ? 'Edit Menu Jualan' : 'Tambah Menu Jualan Baru'}
                 </h3>
-                <p className="text-xs text-[#5a403e] font-medium">
+                <p className="text-xs text-slate-500">
                   Isi informasi menu, foto display POS, dan takaran resep bahan baku (BoM).
                 </p>
               </div>
               <button
                 onClick={() => setIsFormOpen(false)}
-                className="p-2 text-[#5a403e] hover:text-[#1e1b13] rounded-xl transition"
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg transition"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {formError && (
-              <div className="p-3.5 bg-[#ffdad6] border border-[#ba1a1a]/30 text-[#ba1a1a] text-xs font-bold rounded-2xl flex items-center gap-2">
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{formError}</span>
               </div>
@@ -562,43 +561,43 @@ export default function ProductsPage() {
               {/* Product Info */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-bold text-[#1e1b13] mb-1">
-                    Nama Menu <span className="text-[#b22222]">*</span>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Nama Menu <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Misal: Cwie Mie Special Mbahkakung"
-                    className="w-full px-4 py-2.5 bg-[#f5edde] border border-[#e2beba]/40 rounded-2xl text-xs font-bold text-[#1e1b13] focus:outline-none focus:ring-2 focus:ring-[#b22222]"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#1e1b13] mb-1">
-                    Harga Jual (Rp) <span className="text-[#b22222]">*</span>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Harga Jual (Rp) <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="number"
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     placeholder="25000"
-                    className="w-full px-4 py-2.5 bg-[#f5edde] border border-[#e2beba]/40 rounded-2xl text-xs font-bold text-[#1e1b13] focus:outline-none focus:ring-2 focus:ring-[#b22222]"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#1e1b13] mb-1">
-                    Kategori Menu <span className="text-[#b22222]">*</span>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Kategori Menu <span className="text-rose-500">*</span>
                   </label>
                   {!showAddCategory ? (
                     <div className="flex gap-2">
                       <select
                         value={formData.categoryId}
                         onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                        className="flex-1 px-4 py-2.5 bg-[#f5edde] border border-[#e2beba]/40 rounded-2xl text-xs font-bold text-[#1e1b13] focus:outline-none focus:ring-2 focus:ring-[#b22222]"
+                        className="flex-1 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                       >
                         {categories.map((c) => (
                           <option key={c.id} value={c.id}>
@@ -609,7 +608,7 @@ export default function ProductsPage() {
                       <button
                         type="button"
                         onClick={() => setShowAddCategory(true)}
-                        className="px-3 py-2 bg-[#f5edde] hover:bg-[#efe7d9] text-[#b22222] font-bold text-xs rounded-2xl border border-[#e2beba]/40"
+                        className="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-blue-600 font-bold text-xs rounded-xl border border-slate-200 transition"
                         title="Tambah Kategori Baru"
                       >
                         + Kategori
@@ -622,19 +621,19 @@ export default function ProductsPage() {
                         value={newCategoryName}
                         onChange={(e) => setNewCategoryName(e.target.value)}
                         placeholder="Nama Kategori Baru"
-                        className="flex-1 px-3 py-2 bg-[#f5edde] border border-[#e2beba]/40 rounded-2xl text-xs font-bold text-[#1e1b13]"
+                        className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900"
                       />
                       <button
                         type="button"
                         onClick={handleAddCategory}
-                        className="px-3 py-2 bg-[#b22222] text-white font-bold text-xs rounded-2xl"
+                        className="px-3 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl"
                       >
                         Simpan
                       </button>
                       <button
                         type="button"
                         onClick={() => setShowAddCategory(false)}
-                        className="px-2 py-2 text-[#5a403e]"
+                        className="px-2 py-2 text-slate-400"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -644,12 +643,12 @@ export default function ProductsPage() {
               </div>
 
               {/* Display Image Upload Setup */}
-              <div className="space-y-2 pt-2 border-t border-[#e2beba]/30">
-                <label className="block text-xs font-bold text-[#1e1b13]">
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <label className="block text-xs font-semibold text-slate-700">
                   Gambar / Foto Display Menu (POS)
                 </label>
                 <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-2xl bg-[#f5edde] border border-[#e2beba]/40 overflow-hidden flex items-center justify-center shrink-0">
+                  <div className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
                     {formData.imageUrl ? (
                       <img
                         src={formData.imageUrl}
@@ -657,19 +656,19 @@ export default function ProductsPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <ImageIcon className="w-8 h-8 text-[#8e706d]" />
+                      <ImageIcon className="w-6 h-6 text-slate-400" />
                     )}
                   </div>
 
-                  <div className="flex-1 space-y-2">
+                  <div className="flex-1 space-y-1.5">
                     <div className="flex items-center gap-2">
-                      <label className="px-4 py-2.5 bg-[#f5edde] hover:bg-[#efe7d9] text-[#1e1b13] font-bold text-xs rounded-2xl border border-[#e2beba]/40 cursor-pointer flex items-center gap-2 transition">
+                      <label className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 cursor-pointer flex items-center gap-1.5 transition">
                         {uploadingImage ? (
-                          <Loader2 className="w-4 h-4 animate-spin text-[#b22222]" />
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
                         ) : (
-                          <Upload className="w-4 h-4 text-[#b22222]" />
+                          <Upload className="w-3.5 h-3.5 text-blue-600" />
                         )}
-                        <span>{uploadingImage ? 'Uploading...' : 'Upload File Foto'}</span>
+                        <span>{uploadingImage ? 'Uploading...' : 'Upload Foto'}</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -683,7 +682,7 @@ export default function ProductsPage() {
                         <button
                           type="button"
                           onClick={() => setFormData({ ...formData, imageUrl: '' })}
-                          className="text-xs text-[#ba1a1a] font-bold hover:underline"
+                          className="text-[11px] text-rose-600 font-semibold hover:underline"
                         >
                           Hapus Foto
                         </button>
@@ -694,7 +693,7 @@ export default function ProductsPage() {
                       value={formData.imageUrl}
                       onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
                       placeholder="Atau masukan URL gambar (misal: https://...)"
-                      className="w-full px-3 py-1.5 bg-[#f5edde] border border-[#e2beba]/40 rounded-xl text-[11px] text-[#1e1b13]"
+                      className="w-full px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-800"
                     />
                   </div>
                 </div>
@@ -707,46 +706,46 @@ export default function ProductsPage() {
                   id="isActiveToggle"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="w-4 h-4 accent-[#b22222] rounded"
+                  className="w-4 h-4 accent-blue-600 rounded"
                 />
-                <label htmlFor="isActiveToggle" className="text-xs font-bold text-[#1e1b13] cursor-pointer">
+                <label htmlFor="isActiveToggle" className="text-xs font-semibold text-slate-700 cursor-pointer">
                   Tampilkan menu ini secara aktif di aplikasi Kasir (POS)
                 </label>
               </div>
 
               {/* BoM Recipe Items Setup */}
-              <div className="space-y-3 pt-3 border-t border-[#e2beba]/30">
+              <div className="space-y-3 pt-3 border-t border-slate-100">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-xs font-extrabold text-[#1e1b13]">Racikan Resep (BoM)</h4>
-                    <p className="text-[10px] text-[#5a403e]">
+                    <h4 className="text-xs font-bold text-slate-800">Racikan Resep (BoM)</h4>
+                    <p className="text-[10px] text-slate-400">
                       Stok bahan baku akan berkurang otomatis saat menu ini dipesan di POS.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={addRecipeRow}
-                    className="px-3 py-1.5 bg-[#f5edde] hover:bg-[#efe7d9] text-[#b22222] font-bold text-xs rounded-xl border border-[#e2beba]/40 flex items-center gap-1 transition"
+                    className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-blue-600 font-bold text-xs rounded-lg border border-slate-200 flex items-center gap-1 transition"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Bahan Baku</span>
                   </button>
                 </div>
 
-                <div className="bg-[#f5edde] rounded-2xl p-3 border border-[#e2beba]/30 space-y-2">
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
                   {recipeInputs.length === 0 ? (
-                    <p className="text-xs text-[#5a403e] text-center py-2">
+                    <p className="text-xs text-slate-400 text-center py-2">
                       Belum ada racikan bahan. Klik &quot;+ Bahan Baku&quot; di atas untuk memasukkan komposisi resep.
                     </p>
                   ) : (
                     recipeInputs.map((row, idx) => {
                       const selectedMaterial = rawMaterials.find((m) => m.id === row.rawMaterialId);
                       return (
-                        <div key={idx} className="flex items-center gap-2 bg-[#fff8ef] p-2 rounded-xl border border-[#e2beba]/30">
+                        <div key={idx} className="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
                           <select
                             value={row.rawMaterialId}
                             onChange={(e) => updateRecipeRow(idx, 'rawMaterialId', e.target.value)}
-                            className="flex-1 px-3 py-1.5 bg-[#f5edde] border border-[#e2beba]/40 rounded-xl text-xs font-bold text-[#1e1b13]"
+                            className="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800"
                           >
                             {rawMaterials.map((m) => (
                               <option key={m.id} value={m.id}>
@@ -764,9 +763,9 @@ export default function ProductsPage() {
                                 updateRecipeRow(idx, 'quantityNeeded', parseFloat(e.target.value) || 0)
                               }
                               placeholder="Takaran"
-                              className="w-20 px-2.5 py-1.5 bg-[#f5edde] border border-[#e2beba]/40 rounded-xl text-xs font-bold text-[#1e1b13] text-center"
+                              className="w-20 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 text-center"
                             />
-                            <span className="text-[11px] font-bold text-[#5a403e] min-w-[36px]">
+                            <span className="text-[11px] font-semibold text-slate-500 min-w-[36px]">
                               {selectedMaterial?.unit || ''}
                             </span>
                           </div>
@@ -774,7 +773,7 @@ export default function ProductsPage() {
                           <button
                             type="button"
                             onClick={() => removeRecipeRow(idx)}
-                            className="p-1.5 text-[#ba1a1a] hover:bg-[#ffdad6] rounded-lg transition"
+                            className="p-1 text-rose-500 hover:bg-rose-50 rounded-lg transition"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -786,18 +785,18 @@ export default function ProductsPage() {
               </div>
 
               {/* Submit / Cancel Footer */}
-              <div className="pt-4 border-t border-[#e2beba]/30 flex items-center justify-end gap-3">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsFormOpen(false)}
-                  className="px-5 py-3 text-xs font-bold text-[#5a403e] bg-[#f5edde] border border-[#e2beba]/40 hover:bg-[#efe7d9] rounded-2xl transition"
+                  className="px-4 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={formSubmitting}
-                  className="px-6 py-3 bg-[#b22222] hover:bg-[#8f000d] text-white font-bold text-xs rounded-2xl shadow-md shadow-[#b22222]/20 flex items-center gap-2 transition disabled:opacity-50"
+                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 flex items-center gap-2 transition disabled:opacity-50"
                 >
                   {formSubmitting ? (
                     <>

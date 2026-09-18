@@ -25,7 +25,7 @@ export default function PosPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-[#fbf3e4] overflow-hidden select-none">
+    <div className="h-screen flex flex-col bg-slate-900 overflow-hidden select-none">
       {/* Top Header */}
       <PosHeader />
 
@@ -42,24 +42,24 @@ export default function PosPage() {
 
       {/* Mobile Floating Bottom Bar (Visible on Mobile when items in cart) */}
       {totalItemCount > 0 && (
-        <div className="lg:hidden fixed bottom-4 left-4 right-4 z-30">
+        <div className="lg:hidden fixed bottom-3 left-3 right-3 z-30">
           <button
             onClick={() => setMobileCartOpen(true)}
-            className="w-full py-4 px-5 bg-[#b22222] hover:bg-[#8f000d] text-white rounded-2xl shadow-xl flex items-center justify-between font-bold text-xs active:scale-[0.99] transition border border-white/20"
+            className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl shadow-xl flex items-center justify-between font-bold text-xs active:scale-[0.99] transition border border-blue-400/30"
           >
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-white/20 rounded-xl">
-                <ShoppingBag className="w-4 h-4 text-white" />
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-white/20 rounded-lg">
+                <ShoppingBag className="w-4 h-4" />
               </div>
               <div className="text-left">
-                <div className="font-bold text-sm">Keranjang Pesanan ({totalItemCount} Item)</div>
-                <div className="text-[10px] text-white/80 font-medium">Klik untuk lihat rincian</div>
+                <div>Keranjang Pesanan ({totalItemCount} Item)</div>
+                <div className="text-[10px] text-blue-200 font-normal">Klik untuk lihat rincian</div>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 text-base font-extrabold">
+            <div className="flex items-center gap-1 text-sm font-extrabold">
               <span>{formatCurrency(totalAmount)}</span>
-              <ChevronUp className="w-5 h-5" />
+              <ChevronUp className="w-4 h-4" />
             </div>
           </button>
         </div>
@@ -69,13 +69,13 @@ export default function PosPage() {
       {mobileCartOpen && (
         <div
           onClick={() => setMobileCartOpen(false)}
-          className="fixed inset-0 bg-[#1e1b13]/60 backdrop-blur-sm z-40 lg:hidden animate-in fade-in"
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden animate-in fade-in"
         />
       )}
 
       {/* Mobile Cart Drawer Slide-Up */}
       <div
-        className={`fixed inset-x-0 bottom-0 top-12 bg-[#fff8ef] z-50 rounded-t-3xl overflow-hidden transform transition-transform duration-300 ease-in-out lg:hidden shadow-2xl flex flex-col border-t border-[#e2beba]/30 ${
+        className={`fixed inset-x-0 bottom-0 top-12 bg-white z-50 rounded-t-3xl overflow-hidden transform transition-transform duration-300 ease-in-out lg:hidden shadow-2xl flex flex-col ${
           mobileCartOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
@@ -102,4 +102,3 @@ export default function PosPage() {
     </div>
   );
 }
-

@@ -3,7 +3,7 @@
 import React from 'react';
 import { useCartStore } from '@/store/useCartStore';
 import { formatCurrency } from '@/lib/utils';
-import { ShoppingBag, Trash2, Plus, Minus, CreditCard, Edit3, X } from 'lucide-react';
+import { ShoppingBag, Trash2, Plus, Minus, CreditCard, Edit3, X, Utensils } from 'lucide-react';
 
 interface CartSidebarProps {
   onOpenCheckout: () => void;
@@ -65,20 +65,37 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
           items.map((item) => (
             <div
               key={item.productId}
-              className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2 hover:border-slate-300 transition"
+              className="p-3 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-2.5 hover:border-blue-300 hover:shadow-sm transition"
             >
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800 leading-tight">
+              {/* Item Top: Thumbnail Image + Details + Remove */}
+              <div className="flex gap-3 items-center">
+                {/* Thumbnail Display Image */}
+                <div className="w-14 h-14 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Utensils className="w-6 h-6 text-slate-300" />
+                  )}
+                </div>
+
+                {/* Name & Unit Price */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="text-xs font-bold text-slate-800 leading-snug truncate">
                     {item.name}
                   </h4>
-                  <div className="text-[11px] text-slate-500 mt-0.5">
-                    {formatCurrency(item.price)} x {item.qty}
+                  <div className="text-[11px] font-semibold text-blue-600 mt-0.5">
+                    {formatCurrency(item.price)}
                   </div>
                 </div>
+
+                {/* Remove button */}
                 <button
                   onClick={() => removeItem(item.productId)}
-                  className="text-slate-400 hover:text-rose-500 transition p-1"
+                  className="text-slate-400 hover:text-rose-500 transition p-1 shrink-0"
                   title="Hapus dari keranjang"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -92,21 +109,21 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
                   type="text"
                   value={item.note || ''}
                   onChange={(e) => updateNote(item.productId, e.target.value)}
-                  placeholder="Catatan pesanan (misal: Pedas)..."
-                  className="w-full text-[11px] bg-white border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  placeholder="Catatan (misal: Tanpa daun bawang)..."
+                  className="w-full text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400"
                 />
               </div>
 
-              {/* Qty Counter & Subtotal */}
-              <div className="flex items-center justify-between pt-1 border-t border-slate-200/60">
-                <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg p-0.5">
+              {/* Qty Counter & Item Total */}
+              <div className="flex items-center justify-between pt-2 border-t border-slate-200/70">
+                <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg p-0.5 shadow-xs">
                   <button
                     onClick={() => updateQty(item.productId, item.qty - 1)}
                     className="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 transition"
                   >
                     <Minus className="w-3 h-3" />
                   </button>
-                  <span className="text-xs font-bold text-slate-800 px-2 min-w-[20px] text-center">
+                  <span className="text-xs font-extrabold text-slate-800 px-2 min-w-[20px] text-center">
                     {item.qty}
                   </span>
                   <button
@@ -117,7 +134,7 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
                   </button>
                 </div>
 
-                <div className="text-xs font-bold text-slate-800">
+                <div className="text-xs font-black text-slate-900">
                   {formatCurrency(item.price * item.qty)}
                 </div>
               </div>

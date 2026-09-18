@@ -16,6 +16,8 @@ import {
   Utensils,
   Menu,
   X,
+  Search,
+  Bell,
 } from 'lucide-react';
 
 const navItems = [
@@ -35,30 +37,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="flex flex-col h-full justify-between">
       <div>
         {/* Brand Logo Header */}
-        <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-5 border-b border-[#e2beba]/30 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-600 text-amber-300 rounded-xl shadow-lg shadow-blue-500/30">
-              <Utensils className="w-6 h-6" />
+            <div className="p-2 bg-[#b22222] text-white rounded-2xl shadow-md shadow-[#b22222]/20">
+              <Utensils className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white tracking-wide">F&B ERP Admin</h2>
-              <span className="text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-full border border-blue-400/20 font-medium">
-                Back-Office v2.1
+              <h2 className="text-sm font-bold text-[#1e1b13] tracking-tight">F&B ERP Admin</h2>
+              <span className="text-[10px] text-[#b22222] bg-[#b22222]/10 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                Mbahkakung Stack
               </span>
             </div>
           </div>
           {/* Close button for mobile drawer */}
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="lg:hidden p-1.5 text-slate-400 hover:text-white rounded-lg"
+            className="lg:hidden p-1.5 text-[#5a403e] hover:text-[#1e1b13] rounded-lg"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Navigation Links */}
-        <nav className="p-3 space-y-1">
-          <div className="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+        <nav className="p-3 space-y-1.5">
+          <div className="px-3 py-2 text-[10px] font-extrabold text-[#5a403e]/70 uppercase tracking-widest">
             Menu Utama
           </div>
           {navItems.map((item) => {
@@ -69,13 +71,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition ${
+                className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-xs font-bold transition-all ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25'
-                    : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'
+                    ? 'bg-[#b22222] text-white shadow-md shadow-[#b22222]/20'
+                    : 'text-[#5a403e] hover:bg-[#efe7d9] hover:text-[#1e1b13]'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#5a403e]'}`} />
                 <span>{item.label}</span>
               </Link>
             );
@@ -84,30 +86,30 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       {/* Bottom User Controls & POS Quick Action */}
-      <div className="p-3 border-t border-slate-800 space-y-2 bg-slate-950/40">
+      <div className="p-3.5 border-t border-[#e2beba]/30 space-y-2.5 bg-[#f5edde]">
         <Link
           href="/pos"
           onClick={() => setMobileMenuOpen(false)}
-          className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition"
+          className="w-full py-3 bg-[#b22222] hover:bg-[#8f000d] text-white font-bold text-xs rounded-2xl shadow-md flex items-center justify-center gap-2 transition active:scale-[0.99]"
         >
           <ShoppingBag className="w-4 h-4" />
-          <span>Buka Web POS (Kasir)</span>
+          <span>Buka Order Terminal (POS)</span>
         </Link>
 
-        <div className="p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/60 flex items-center justify-between">
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className="p-1.5 bg-slate-700 rounded-lg text-slate-300 shrink-0">
-              <Shield className="w-3.5 h-3.5 text-blue-400" />
+        <div className="p-3 bg-[#fff8ef] rounded-2xl border border-[#e2beba]/40 flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <div className="p-2 bg-[#f5edde] rounded-xl text-[#b22222] shrink-0 font-bold text-xs">
+              <Shield className="w-4 h-4" />
             </div>
             <div className="truncate text-xs">
-              <div className="font-bold text-slate-200 truncate">{session?.user?.name || 'Admin'}</div>
-              <div className="text-[10px] text-slate-400 truncate">{session?.user?.email}</div>
+              <div className="font-bold text-[#1e1b13] truncate">{session?.user?.name || 'Admin'}</div>
+              <div className="text-[10px] text-[#5a403e] truncate font-medium">{session?.user?.email}</div>
             </div>
           </div>
 
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
-            className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-700 rounded-lg transition"
+            className="p-2 text-[#5a403e] hover:text-[#b22222] hover:bg-[#efe7d9] rounded-xl transition"
             title="Logout"
           >
             <LogOut className="w-4 h-4" />
@@ -118,31 +120,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   );
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-100 font-sans">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#fbf3e4] font-sans">
       {/* Mobile Top Header */}
-      <header className="lg:hidden bg-slate-900 text-white px-4 py-3 flex items-center justify-between border-b border-slate-800 sticky top-0 z-30 shadow-md">
+      <header className="lg:hidden bg-[#f5edde] text-[#1e1b13] px-4 py-3 flex items-center justify-between border-b border-[#e2beba]/40 sticky top-0 z-30 shadow-sm">
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="p-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-slate-200 transition"
+            className="p-2 bg-[#fff8ef] hover:bg-[#efe7d9] rounded-xl text-[#1e1b13] border border-[#e2beba]/40 transition"
             aria-label="Buka Menu Sidebar"
           >
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-blue-600 text-amber-300 rounded-lg">
+            <div className="p-1.5 bg-[#b22222] text-white rounded-lg">
               <Utensils className="w-4 h-4" />
             </div>
-            <span className="text-xs font-bold text-white">F&B ERP Admin</span>
+            <span className="text-xs font-bold text-[#1e1b13]">F&B ERP Admin</span>
           </div>
         </div>
 
         <Link
           href="/pos"
-          className="px-3 py-1.5 bg-emerald-600 text-white font-bold text-[11px] rounded-lg flex items-center gap-1.5"
+          className="px-3 py-1.5 bg-[#b22222] text-white font-bold text-[11px] rounded-xl flex items-center gap-1.5 shadow-sm"
         >
           <ShoppingBag className="w-3.5 h-3.5" />
-          <span>Kasir</span>
+          <span>POS</span>
         </Link>
       </header>
 
@@ -150,28 +152,29 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {mobileMenuOpen && (
         <div
           onClick={() => setMobileMenuOpen(false)}
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden animate-in fade-in"
+          className="fixed inset-0 bg-[#1e1b13]/50 backdrop-blur-sm z-40 lg:hidden animate-in fade-in"
         />
       )}
 
       {/* Mobile Drawer Navigation */}
       <aside
-        className={`fixed top-0 left-0 bottom-0 w-72 bg-slate-900 text-slate-300 z-50 transform transition-transform duration-300 ease-in-out lg:hidden shadow-2xl ${
+        className={`fixed top-0 left-0 bottom-0 w-72 bg-[#f5edde] text-[#1e1b13] z-50 transform transition-transform duration-300 ease-in-out lg:hidden shadow-2xl ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <NavContent />
       </aside>
 
-      {/* Desktop Sidebar Navigation */}
-      <aside className="hidden lg:flex w-64 bg-slate-900 text-slate-300 flex-col shrink-0 shadow-xl border-r border-slate-800 sticky top-0 h-screen">
+      {/* Desktop Sidebar Navigation (Style matching Order Terminal / Inventory design) */}
+      <aside className="hidden lg:flex w-64 bg-[#f5edde] text-[#1e1b13] flex-col shrink-0 border-r border-[#e2beba]/30 sticky top-0 h-screen">
         <NavContent />
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
-        <div className="p-4 sm:p-6 max-w-7xl w-full mx-auto space-y-6">{children}</div>
+      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-[#fbf3e4]">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">{children}</div>
       </main>
     </div>
   );
 }
+

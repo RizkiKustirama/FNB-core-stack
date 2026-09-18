@@ -64,17 +64,17 @@ export function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutModalProps
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-[#1e1b13]/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-[#fff8ef] rounded-3xl max-w-md w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 border border-[#e2beba]/30">
         {/* Header */}
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+        <div className="p-5 border-b border-[#e2beba]/30 flex items-center justify-between bg-[#f5edde]">
           <div>
-            <h3 className="text-base font-bold text-slate-800">Pembayaran & Checkout</h3>
-            <p className="text-xs text-slate-500">Pilih metode pembayaran transaksi</p>
+            <h3 className="text-base font-bold text-[#1e1b13]">Pembayaran & Checkout</h3>
+            <p className="text-xs text-[#5a403e]">Pilih metode pembayaran transaksi</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition"
+            className="p-2 rounded-2xl text-[#5a403e] hover:text-[#1e1b13] hover:bg-[#efe7d9] transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -83,36 +83,36 @@ export function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutModalProps
         {/* Modal Body */}
         <div className="p-6 space-y-5">
           {error && (
-            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
+            <div className="p-3 bg-[#ffdad6] border border-[#ba1a1a]/30 text-[#ba1a1a] text-xs rounded-2xl flex items-center gap-2 font-semibold">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Grand Total Card */}
-          <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl text-center">
-            <span className="text-xs font-medium text-slate-500">Total Pembayaran</span>
-            <div className="text-2xl font-black text-blue-600 mt-0.5">
+          <div className="p-4 bg-[#f5edde] border border-[#e2beba]/40 rounded-2xl text-center">
+            <span className="text-xs font-bold text-[#5a403e] uppercase tracking-wider">Total Pembayaran</span>
+            <div className="text-3xl font-extrabold text-[#b22222] mt-1 tracking-tight">
               {formatCurrency(total)}
             </div>
           </div>
 
           {/* Payment Method Selector */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-2">
+            <label className="block text-xs font-bold text-[#1e1b13] mb-2">
               Metode Pembayaran
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2.5">
               <button
                 type="button"
                 onClick={() => {
                   setPaymentMethod('CASH');
                   setCashReceived(String(total));
                 }}
-                className={`p-3 rounded-2xl border text-xs font-bold flex flex-col items-center gap-1.5 transition ${
+                className={`p-3.5 rounded-2xl border text-xs font-bold flex flex-col items-center gap-1.5 transition ${
                   paymentMethod === 'CASH'
-                    ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-sm'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'border-[#b22222] bg-[#b22222] text-white shadow-md shadow-[#b22222]/20'
+                    : 'border-[#e2beba]/40 bg-[#f5edde] text-[#1e1b13] hover:bg-[#efe7d9]'
                 }`}
               >
                 <Banknote className="w-5 h-5" />
@@ -122,10 +122,10 @@ export function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutModalProps
               <button
                 type="button"
                 onClick={() => setPaymentMethod('QRIS')}
-                className={`p-3 rounded-2xl border text-xs font-bold flex flex-col items-center gap-1.5 transition ${
+                className={`p-3.5 rounded-2xl border text-xs font-bold flex flex-col items-center gap-1.5 transition ${
                   paymentMethod === 'QRIS'
-                    ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-sm'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'border-[#b22222] bg-[#b22222] text-white shadow-md shadow-[#b22222]/20'
+                    : 'border-[#e2beba]/40 bg-[#f5edde] text-[#1e1b13] hover:bg-[#efe7d9]'
                 }`}
               >
                 <QrCode className="w-5 h-5" />
@@ -135,10 +135,10 @@ export function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutModalProps
               <button
                 type="button"
                 onClick={() => setPaymentMethod('TRANSFER')}
-                className={`p-3 rounded-2xl border text-xs font-bold flex flex-col items-center gap-1.5 transition ${
+                className={`p-3.5 rounded-2xl border text-xs font-bold flex flex-col items-center gap-1.5 transition ${
                   paymentMethod === 'TRANSFER'
-                    ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-sm'
-                    : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'border-[#b22222] bg-[#b22222] text-white shadow-md shadow-[#b22222]/20'
+                    : 'border-[#e2beba]/40 bg-[#f5edde] text-[#1e1b13] hover:bg-[#efe7d9]'
                 }`}
               >
                 <Building2 className="w-5 h-5" />
@@ -149,66 +149,66 @@ export function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutModalProps
 
           {/* Cash Specific Controls */}
           {paymentMethod === 'CASH' && (
-            <div className="space-y-3 pt-2 border-t border-slate-100">
+            <div className="space-y-3 pt-3 border-t border-[#e2beba]/30">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-bold text-[#1e1b13] mb-1.5">
                   Uang Diterima (Rp)
                 </label>
                 <input
                   type="number"
                   value={cashReceived}
                   onChange={(e) => setCashReceived(e.target.value)}
-                  className="w-full px-4 py-2.5 text-lg font-bold bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                  className="w-full px-4 py-3 text-xl font-extrabold bg-[#f5edde] border border-[#e2beba]/40 rounded-2xl text-[#1e1b13] focus:outline-none focus:ring-2 focus:ring-[#b22222] transition"
                 />
               </div>
 
               {/* Quick Nominal Buttons */}
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
                   onClick={() => setCashReceived(String(total))}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition"
+                  className="px-3 py-1.5 bg-[#f5edde] hover:bg-[#efe7d9] text-[#1e1b13] text-xs font-bold rounded-xl border border-[#e2beba]/30 transition"
                 >
                   Uang Pas
                 </button>
                 <button
                   type="button"
                   onClick={() => setCashReceived('20000')}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition"
+                  className="px-3 py-1.5 bg-[#f5edde] hover:bg-[#efe7d9] text-[#1e1b13] text-xs font-bold rounded-xl border border-[#e2beba]/30 transition"
                 >
                   20.000
                 </button>
                 <button
                   type="button"
                   onClick={() => setCashReceived('50000')}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition"
+                  className="px-3 py-1.5 bg-[#f5edde] hover:bg-[#efe7d9] text-[#1e1b13] text-xs font-bold rounded-xl border border-[#e2beba]/30 transition"
                 >
                   50.000
                 </button>
                 <button
                   type="button"
                   onClick={() => setCashReceived('100000')}
-                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition"
+                  className="px-3 py-1.5 bg-[#f5edde] hover:bg-[#efe7d9] text-[#1e1b13] text-xs font-bold rounded-xl border border-[#e2beba]/30 transition"
                 >
                   100.000
                 </button>
               </div>
 
               {/* Change Amount Box */}
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs font-bold text-emerald-800">
+              <div className="p-3.5 bg-[#f5edde] border border-[#e2beba]/40 rounded-2xl flex items-center justify-between text-xs font-bold text-[#1e1b13]">
                 <span>Uang Kembalian:</span>
-                <span className="text-sm">{formatCurrency(changeAmount)}</span>
+                <span className="text-base text-[#b22222] font-extrabold">{formatCurrency(changeAmount)}</span>
               </div>
             </div>
           )}
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center gap-2">
+        <div className="p-5 bg-[#f5edde] border-t border-[#e2beba]/30 flex items-center gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="w-1/3 py-3 text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl transition"
+            className="w-1/3 py-3.5 text-xs font-bold text-[#5a403e] bg-[#fff8ef] border border-[#e2beba]/40 hover:bg-[#efe7d9] rounded-2xl transition"
           >
             Batal
           </button>
@@ -216,7 +216,7 @@ export function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutModalProps
             type="button"
             disabled={loading || isInsufficient}
             onClick={handleProcessCheckout}
-            className="w-2/3 py-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 transition disabled:opacity-50"
+            className="w-2/3 py-3.5 bg-[#b22222] hover:bg-[#8f000d] text-white text-xs font-bold rounded-2xl shadow-md shadow-[#b22222]/20 flex items-center justify-center gap-2 transition disabled:opacity-50"
           >
             {loading ? (
               <>
@@ -235,3 +235,4 @@ export function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutModalProps
     </div>
   );
 }
+

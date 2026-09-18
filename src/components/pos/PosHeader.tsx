@@ -31,36 +31,36 @@ export function PosHeader() {
   const isAdmin = (session?.user as any)?.role === 'ADMIN';
 
   return (
-    <header className="bg-slate-900 text-white px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between shadow-md border-b border-slate-800 shrink-0">
+    <header className="bg-[#FAF6F0] text-[#2C221E] px-4 py-3 flex items-center justify-between shadow-xs border-b border-[#2C221E]/10 shrink-0">
       {/* Brand & Logo */}
-      <div className="flex items-center gap-2.5">
-        <div className="p-1.5 sm:p-2 bg-blue-600 rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center shrink-0">
-          <Utensils className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300" />
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-[#C62828] text-white rounded-2xl shadow-md shadow-red-700/20 flex items-center justify-center shrink-0">
+          <Utensils className="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 className="text-xs sm:text-base font-bold tracking-wide flex items-center gap-1.5">
-            Kasir POS
-            <span className="text-[9px] sm:text-[10px] bg-blue-500/20 text-blue-300 border border-blue-400/30 px-1.5 sm:px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold">
-              WEB
+          <h1 className="text-lg font-serif font-bold tracking-tight text-[#2C221E] flex items-center gap-2">
+            Order Terminal
+            <span className="text-[10px] bg-[#C62828]/10 text-[#C62828] font-sans font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">
+              POS
             </span>
           </h1>
-          <div className="text-[10px] sm:text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
-            <Clock className="w-3 h-3 text-slate-400 shrink-0" />
-            <span className="truncate max-w-[130px] sm:max-w-none">{timeStr || 'Memuat...'}</span>
+          <div className="text-[11px] text-[#2C221E]/70 flex items-center gap-1 mt-0.5 font-medium">
+            <Clock className="w-3.5 h-3.5 text-[#2C221E]/60 shrink-0" />
+            <span className="truncate max-w-[140px] sm:max-w-none">{timeStr || 'Memuat...'}</span>
           </div>
         </div>
       </div>
 
       {/* User Info & Actions */}
       <div className="flex items-center gap-2 sm:gap-3">
-        <div className="hidden md:flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
-          <div className="p-1 bg-slate-700 rounded-lg text-slate-300">
+        <div className="hidden md:flex items-center gap-2.5 bg-white px-3.5 py-1.5 rounded-2xl border border-[#2C221E]/10 shadow-xs">
+          <div className="p-1 bg-[#FAF6F0] rounded-xl text-[#C62828]">
             <User className="w-4 h-4" />
           </div>
           <div className="text-xs">
-            <div className="font-semibold text-slate-200">{session?.user?.name || 'Kasir'}</div>
-            <div className="text-[10px] text-slate-400 flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3 text-emerald-400" />
+            <div className="font-bold text-[#2C221E]">{session?.user?.name || 'Kasir'}</div>
+            <div className="text-[10px] text-[#2C221E]/60 flex items-center gap-1 font-semibold">
+              <ShieldCheck className="w-3 h-3 text-[#C62828]" />
               <span>{(session?.user as any)?.role || 'CASHIER'}</span>
             </div>
           </div>
@@ -69,16 +69,16 @@ export function PosHeader() {
         {isAdmin && (
           <Link
             href="/dashboard"
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition"
+            className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-[#FAF6F0] text-[#2C221E] text-xs font-bold rounded-2xl border border-[#2C221E]/10 transition shadow-xs"
           >
-            <LayoutDashboard className="w-4 h-4 text-blue-400" />
+            <LayoutDashboard className="w-4 h-4 text-[#C62828]" />
             <span className="hidden sm:inline">ERP Back-Office</span>
           </Link>
         )}
 
         <button
           onClick={() => signOut({ callbackUrl: '/login' })}
-          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-rose-600/10 hover:bg-rose-600/20 text-rose-400 text-xs font-semibold rounded-xl border border-rose-500/30 transition"
+          className="flex items-center gap-1.5 px-3 py-2 bg-[#C62828]/10 hover:bg-[#C62828]/20 text-[#C62828] text-xs font-bold rounded-2xl border border-[#C62828]/20 transition"
           title="Keluar / Logout"
         >
           <LogOut className="w-4 h-4" />

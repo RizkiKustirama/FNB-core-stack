@@ -1,9 +1,22 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useCartStore } from '@/store/useCartStore';
 import { formatCurrency } from '@/lib/utils';
-import { ShoppingBag, Trash2, Plus, Minus, CreditCard, Edit3, X, Utensils } from 'lucide-react';
+import {
+  ShoppingBag,
+  Trash2,
+  Plus,
+  Minus,
+  CreditCard,
+  Edit3,
+  X,
+  Utensils,
+  Printer,
+  MoreHorizontal,
+  Users,
+  UtensilsCrossed,
+} from 'lucide-react';
 
 interface CartSidebarProps {
   onOpenCheckout: () => void;
@@ -15,49 +28,93 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
   const { items, removeItem, updateQty, updateNote, clearCart, getSubtotal, getTotalAmount } =
     useCartStore();
 
+  const [tableNumber, setTableNumber] = useState<string>('Meja 12');
+  const [guestCount, setGuestCount] = useState<string>('2 Tamu');
+
   const subtotal = getSubtotal();
-  const total = getTotalAmount();
+  const tax = Math.round(subtotal * 0.1); // PB1 Tax 10%
+  const serviceCharge = Math.round(subtotal * 0.05); // Service Charge 5%
+  const grandTotal = subtotal + tax + serviceCharge;
 
   return (
-    <div className="w-full lg:w-96 bg-white border-l border-slate-200 flex flex-col h-full shadow-lg">
-      {/* Header Cart */}
-      <div className="p-3.5 sm:p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-        <div className="flex items-center gap-2">
-          <ShoppingBag className="w-5 h-5 text-blue-600" />
-          <h2 className="text-sm font-bold text-slate-800">Keranjang Pesanan</h2>
-          <span className="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
-            {items.reduce((sum, item) => sum + item.qty, 0)} item
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          {items.length > 0 && (
-            <button
-              onClick={clearCart}
-              className="text-[11px] font-semibold text-rose-500 hover:text-rose-700 flex items-center gap-1 transition"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Kosongkan</span>
-            </button>
-          )}
+    <div className="w-full lg:w-[420px] bg-white border-l border-[#2C221E]/10 flex flex-col h-full shadow-lg shrink-0 overflow-hidden">
+      {/* Header Panel & Table/Guest Selectors */}
+      <div className="p-5 border-b border-[#2C221E]/10 bg-white space-y-4 shrink-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <h2 className="font-serif text-2xl font-extrabold text-[#2C221E]">Current Order</h2>
+            <span className="bg-[#C62828]/10 text-[#C62828] text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              {items.reduce((sum, item) => sum + item.qty, 0)} ITEMS
+            </span>
+          </div>
 
-          {isMobileDrawer && (
-            <button
-              onClick={onCloseMobile}
-              className="lg:hidden p-1 text-slate-400 hover:text-slate-600 rounded-lg"
+          <div className="flex items-center gap-2">
+            {items.length > 0 && (
+              <button
+                onClick={clearCart}
+                className="text-[11px] font-bold text-[#C62828] hover:underline flex items-center gap-1 transition uppercase tracking-wider"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Clear</span>
+              </button>
+            )}
+
+            {isMobileDrawer && (
+              <button
+                onClick={onCloseMobile}
+                className="lg:hidden p-1.5 text-[#2C221E]/60 hover:bg-[#FAF6F0] rounded-xl transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Table Info & Guest Dropdown Pickers */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-[#FAF6F0] rounded-2xl p-3 flex items-center justify-between border border-[#2C221E]/10">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#2C221E]">
+              <UtensilsCrossed className="w-4 h-4 text-[#C62828]" />
+              <span>{tableNumber}</span>
+            </div>
+            <select
+              value={tableNumber}
+              onChange={(e) => setTableNumber(e.target.value)}
+              className="bg-transparent text-[11px] text-[#2C221E]/70 focus:outline-none cursor-pointer font-bold"
             >
-              <X className="w-5 h-5" />
-            </button>
-          )}
+              <option value="Meja 12">Meja 12</option>
+              <option value="Meja 01">Meja 01</option>
+              <option value="Meja 05">Meja 05</option>
+              <option value="Takeaway">Takeaway</option>
+            </select>
+          </div>
+
+          <div className="bg-[#FAF6F0] rounded-2xl p-3 flex items-center justify-between border border-[#2C221E]/10">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#2C221E]">
+              <Users className="w-4 h-4 text-[#C62828]" />
+              <span>{guestCount}</span>
+            </div>
+            <select
+              value={guestCount}
+              onChange={(e) => setGuestCount(e.target.value)}
+              className="bg-transparent text-[11px] text-[#2C221E]/70 focus:outline-none cursor-pointer font-bold"
+            >
+              <option value="1 Tamu">1 Tamu</option>
+              <option value="2 Tamu">2 Tamu</option>
+              <option value="4 Tamu">4 Tamu</option>
+              <option value="6 Tamu">6 Tamu</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Cart Items List */}
-      <div className="flex-1 p-3.5 sm:p-4 overflow-y-auto space-y-3">
+      {/* Order Item List (Compact Item Cards with Thumbnail photo & Stepper) */}
+      <div className="flex-1 p-5 overflow-y-auto space-y-3.5">
         {items.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-slate-400 py-12 text-center">
-            <ShoppingBag className="w-12 h-12 text-slate-200 mb-2 stroke-1" />
-            <p className="text-xs font-medium text-slate-500">Keranjang masih kosong</p>
-            <p className="text-[11px] text-slate-400 max-w-[200px] mt-1">
+          <div className="h-full flex flex-col items-center justify-center text-[#2C221E]/50 py-12 text-center">
+            <ShoppingBag className="w-14 h-14 text-[#2C221E]/20 mb-3 stroke-1" />
+            <p className="text-sm font-bold text-[#2C221E]">Keranjang Masih Kosong</p>
+            <p className="text-xs text-[#2C221E]/60 max-w-[220px] mt-1 font-medium">
               Pilih menu dari katalog di sebelah kiri untuk menambahkan ke pesanan.
             </p>
           </div>
@@ -65,12 +122,12 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
           items.map((item) => (
             <div
               key={item.productId}
-              className="p-3 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-2.5 hover:border-blue-300 hover:shadow-sm transition"
+              className="p-3.5 bg-[#FAF6F0]/80 rounded-2xl border border-[#2C221E]/10 space-y-2.5 hover:border-[#C62828]/30 hover:shadow-xs transition"
             >
-              {/* Item Top: Thumbnail Image + Details + Remove */}
+              {/* Item Card Top Row */}
               <div className="flex gap-3 items-center">
-                {/* Thumbnail Display Image */}
-                <div className="w-14 h-14 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
+                {/* Thumbnail photo (rounded square) */}
+                <div className="w-14 h-14 rounded-xl bg-white border border-[#2C221E]/10 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
                   {item.imageUrl ? (
                     <img
                       src={item.imageUrl}
@@ -78,99 +135,118 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <Utensils className="w-6 h-6 text-slate-300" />
+                    <Utensils className="w-6 h-6 text-[#2C221E]/30" />
                   )}
                 </div>
 
-                {/* Name & Unit Price */}
+                {/* Menu Details & Unit Price */}
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-xs font-bold text-slate-800 leading-snug truncate">
+                  <h4 className="text-xs font-bold text-[#2C221E] leading-snug truncate">
                     {item.name}
                   </h4>
-                  <div className="text-[11px] font-semibold text-blue-600 mt-0.5">
-                    {formatCurrency(item.price)}
+                  <div className="text-xs font-extrabold text-[#C62828] mt-0.5">
+                    {formatCurrency(item.price * item.qty)}
                   </div>
                 </div>
 
-                {/* Remove button */}
-                <button
-                  onClick={() => removeItem(item.productId)}
-                  className="text-slate-400 hover:text-rose-500 transition p-1 shrink-0"
-                  title="Hapus dari keranjang"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* Note input */}
-              <div className="flex items-center gap-1.5">
-                <Edit3 className="w-3 h-3 text-slate-400 shrink-0" />
-                <input
-                  type="text"
-                  value={item.note || ''}
-                  onChange={(e) => updateNote(item.productId, e.target.value)}
-                  placeholder="Catatan (misal: Tanpa daun bawang)..."
-                  className="w-full text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                />
-              </div>
-
-              {/* Qty Counter & Item Total */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-200/70">
-                <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg p-0.5 shadow-xs">
+                {/* Quantity Stepper (- 1 +) minimalis */}
+                <div className="flex items-center gap-1.5 bg-white border border-[#2C221E]/10 rounded-full p-1 shadow-xs shrink-0">
                   <button
                     onClick={() => updateQty(item.productId, item.qty - 1)}
-                    className="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 transition"
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-[#2C221E] hover:bg-[#FAF6F0] transition"
                   >
                     <Minus className="w-3 h-3" />
                   </button>
-                  <span className="text-xs font-extrabold text-slate-800 px-2 min-w-[20px] text-center">
+                  <span className="text-xs font-extrabold text-[#2C221E] px-1.5 min-w-[18px] text-center">
                     {item.qty}
                   </span>
                   <button
                     onClick={() => updateQty(item.productId, item.qty + 1)}
-                    className="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 transition"
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-[#2C221E] hover:bg-[#FAF6F0] transition"
                   >
                     <Plus className="w-3 h-3" />
                   </button>
                 </div>
+              </div>
 
-                <div className="text-xs font-black text-slate-900">
-                  {formatCurrency(item.price * item.qty)}
-                </div>
+              {/* Sub-notes Input */}
+              <div className="flex items-center gap-1.5">
+                <Edit3 className="w-3 h-3 text-[#2C221E]/40 shrink-0" />
+                <input
+                  type="text"
+                  value={item.note || ''}
+                  onChange={(e) => updateNote(item.productId, e.target.value)}
+                  placeholder="Tambah catatan (misal: Tanpa daun bawang)..."
+                  className="w-full text-[11px] bg-white border border-[#2C221E]/10 rounded-lg px-2.5 py-1 text-[#2C221E] placeholder-[#2C221E]/40 focus:outline-none focus:ring-1 focus:ring-[#C62828]"
+                />
               </div>
             </div>
           ))
         )}
       </div>
 
-      {/* Footer Calculation & Checkout Button */}
+      {/* Summary & Checkout Section */}
       {items.length > 0 && (
-        <div className="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 space-y-3">
-          <div className="space-y-1 text-xs">
-            <div className="flex justify-between text-slate-500">
+        <div className="p-5 bg-[#FAF6F0]/60 border-t border-[#2C221E]/10 space-y-4 shrink-0 shadow-lg">
+          <div className="space-y-2 text-xs font-medium text-[#2C221E]/70">
+            <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>{formatCurrency(subtotal)}</span>
+              <span className="font-bold text-[#2C221E]">{formatCurrency(subtotal)}</span>
             </div>
-            <div className="flex justify-between text-slate-500">
-              <span>Pajak / Service</span>
-              <span>Rp 0</span>
+            <div className="flex justify-between">
+              <span>PB1 Tax (10%)</span>
+              <span className="font-bold text-[#2C221E]">{formatCurrency(tax)}</span>
             </div>
-            <div className="flex justify-between font-bold text-sm text-slate-900 pt-2 border-t border-slate-200">
-              <span>Total Tagihan</span>
-              <span className="text-blue-600">{formatCurrency(total)}</span>
+            <div className="flex justify-between">
+              <span>Service Charge (5%)</span>
+              <span className="font-bold text-[#2C221E]">{formatCurrency(serviceCharge)}</span>
+            </div>
+
+            {/* Total Amount in Serif Font in Cherry Red (#C62828) */}
+            <div className="pt-3 border-t border-[#2C221E]/10 flex justify-between items-end">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-extrabold text-[#2C221E]/60 uppercase tracking-widest">
+                  TOTAL AMOUNT
+                </span>
+                <span className="font-serif text-3xl font-extrabold text-[#C62828] tracking-tight leading-none mt-1">
+                  {formatCurrency(grandTotal)}
+                </span>
+              </div>
+
+              <button
+                onClick={clearCart}
+                className="text-[10px] font-extrabold text-[#C62828] hover:underline uppercase tracking-wider mb-1"
+              >
+                Clear Order
+              </button>
             </div>
           </div>
 
-          <button
-            onClick={() => {
-              if (onCloseMobile) onCloseMobile();
-              onOpenCheckout();
-            }}
-            className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition active:scale-[0.99]"
-          >
-            <CreditCard className="w-4 h-4" />
-            <span>BAYAR {formatCurrency(total)}</span>
-          </button>
+          {/* Action Buttons: Icon Buttons + Big Cherry Red CHARGE button */}
+          <div className="flex items-center gap-2.5">
+            <button
+              title="More Options"
+              className="w-14 h-14 flex items-center justify-center bg-white border border-[#2C221E]/10 text-[#2C221E] rounded-2xl hover:bg-[#FAF6F0] transition shadow-xs"
+            >
+              <MoreHorizontal className="w-5 h-5" />
+            </button>
+            <button
+              title="Print Receipt Preview"
+              className="w-14 h-14 flex items-center justify-center bg-white border border-[#2C221E]/10 text-[#2C221E] rounded-2xl hover:bg-[#FAF6F0] transition shadow-xs"
+            >
+              <Printer className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => {
+                if (onCloseMobile) onCloseMobile();
+                onOpenCheckout();
+              }}
+              className="flex-1 h-14 bg-[#C62828] hover:bg-[#a81c1c] text-white font-bold text-base rounded-2xl shadow-lg shadow-red-700/20 flex items-center justify-center gap-2 transition active:scale-[0.99] tracking-wider"
+            >
+              <CreditCard className="w-5 h-5" />
+              <span>CHARGE</span>
+            </button>
+          </div>
         </div>
       )}
     </div>

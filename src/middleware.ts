@@ -1,9 +1,20 @@
-import { auth } from '@/auth';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const userRole = (req.auth?.user as any)?.role;
+export async function middleware(req: NextRequest) {
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'fnb-pos-super-secret-key-change-in-prod';
+
+  // Multi-cookie resolution for NextAuth v5 (HTTPS Vercel vs HTTP Localhost)
+  const token =
+    (await getToken({ req, secret, cookieName: '__Secure-authjs.session-token' })) ||
+    (await getToken({ req, secret, cookieName: 'authjs.session-token' })) ||
+    (await getToken({ req, secret, cookieName: '__Secure-next-auth.session-token' })) ||
+    (await getToken({ req, secret, cookieName: 'next-auth.session-token' })) ||
+    (await getToken({ req, secret }));
+
+  const isLoggedIn = !!token;
+  const userRole = (token as any)?.role;
   const { pathname } = req.nextUrl;
 
   // Protected paths
@@ -12,7 +23,6 @@ export default auth((req) => {
   const isAuthPage = pathname.startsWith('/login');
 
   if (isAuthPage && isLoggedIn) {
-    // If already logged in, redirect based on role
     if (userRole === 'ADMIN') {
       return NextResponse.redirect(new URL('/dashboard', req.url));
     }
@@ -33,7 +43,7 @@ export default auth((req) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ['/dashboard/:path*', '/pos/:path*', '/login'],

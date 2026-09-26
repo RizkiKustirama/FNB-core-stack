@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { formatCurrency } from '@/lib/utils';
-import { Receipt, Plus, RefreshCw, TrendingUp, TrendingDown, CheckCircle, Loader2 } from 'lucide-react';
+import { Receipt, Plus, RefreshCw, TrendingUp, TrendingDown, CheckCircle, Loader2, X } from 'lucide-react';
 
 interface CashflowLog {
   id: string;
@@ -218,16 +218,31 @@ export default function CashflowPage() {
 
       {/* Modal Add Manual Expense */}
       {isAddOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="text-base font-bold text-slate-900">Catat Pengeluaran Manual</h3>
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 my-8">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">
+                  Arus Kas & Expense
+                </span>
+                <h3 className="text-base font-bold text-slate-900">Catat Pengeluaran Manual</h3>
+                <p className="text-xs text-slate-500">Input transaksi uang keluar belanja harian</p>
+              </div>
+              <button
+                onClick={() => setIsAddOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             <form onSubmit={handleAddExpense} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Kategori Pengeluaran</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+                  className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                 >
                   <option value="SUPPLIES_PURCHASE">Belanja Bahan & Pasar</option>
                   <option value="UTILITIES">Utilitas (Listrik, Air, Internet)</option>
@@ -244,7 +259,7 @@ export default function CashflowPage() {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="Misal: 150000"
-                  className="w-full px-3 py-2 text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl"
+                  className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                 />
               </div>
 
@@ -256,7 +271,7 @@ export default function CashflowPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Misal: Beli Sayur Pasar Pagi & Gas LPG"
-                  className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+                  className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                 />
               </div>
 
@@ -267,22 +282,22 @@ export default function CashflowPage() {
                   value={proofImageUrl}
                   onChange={(e) => setProofImageUrl(e.target.value)}
                   placeholder="https://storage... / foto_nota.jpg"
-                  className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+                  className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                 />
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddOpen(false)}
-                  className="w-1/3 py-2.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl"
+                  className="px-4 py-2.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-2/3 py-2.5 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl flex items-center justify-center gap-2"
+                  className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-md shadow-rose-500/20 flex items-center justify-center gap-2 transition disabled:opacity-50"
                 >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Simpan Pengeluaran'}
                 </button>

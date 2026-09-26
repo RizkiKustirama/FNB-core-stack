@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { formatCurrency } from '@/lib/utils';
-import { Boxes, Plus, RefreshCw, AlertTriangle, CheckCircle, ArrowUpDown, Loader2 } from 'lucide-react';
+import { Boxes, Plus, RefreshCw, AlertTriangle, CheckCircle, ArrowUpDown, Loader2, X } from 'lucide-react';
 
 interface RawMaterial {
   id: string;
@@ -225,9 +225,24 @@ export default function InventoryPage() {
 
       {/* Modal Add Material */}
       {isAddOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <h3 className="text-base font-bold text-slate-900">Tambah Bahan Baku Baru</h3>
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 my-8">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">
+                  Manajemen Bahan Baku
+                </span>
+                <h3 className="text-base font-bold text-slate-900">Tambah Bahan Baku Baru</h3>
+                <p className="text-xs text-slate-500">Masukkan item persediaan & ambang minimum stok</p>
+              </div>
+              <button
+                onClick={() => setIsAddOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
             <form onSubmit={handleAddMaterial} className="space-y-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Bahan</label>
@@ -237,7 +252,7 @@ export default function InventoryPage() {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="Misal: Daging Ayam, Kopi Blend, Cup 16oz"
-                  className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                 />
               </div>
 
@@ -247,7 +262,7 @@ export default function InventoryPage() {
                   <select
                     value={newUnit}
                     onChange={(e) => setNewUnit(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                   >
                     <option value="GRAM">GRAM</option>
                     <option value="ML">ML</option>
@@ -261,7 +276,7 @@ export default function InventoryPage() {
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
                     placeholder="Bahan Utama, Kemasan, Bumbu"
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                   />
                 </div>
               </div>
@@ -274,7 +289,7 @@ export default function InventoryPage() {
                     step="any"
                     value={newStock}
                     onChange={(e) => setNewStock(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                   />
                 </div>
                 <div>
@@ -284,23 +299,23 @@ export default function InventoryPage() {
                     step="any"
                     value={newMinStock}
                     onChange={(e) => setNewMinStock(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                   />
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddOpen(false)}
-                  className="w-1/3 py-2.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl"
+                  className="px-4 py-2.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={submittingAdd}
-                  className="w-2/3 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center justify-center gap-2"
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 transition disabled:opacity-50"
                 >
                   {submittingAdd ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Simpan Bahan'}
                 </button>
@@ -312,15 +327,26 @@ export default function InventoryPage() {
 
       {/* Modal Adjust Stock */}
       {selectedMaterial && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
-            <div>
-              <h3 className="text-base font-bold text-slate-900">
-                Stok Opname: {selectedMaterial.name}
-              </h3>
-              <p className="text-xs text-slate-500">
-                Stok fisik saat ini: <strong className="text-slate-800">{selectedMaterial.currentStock} {selectedMaterial.unit}</strong>
-              </p>
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 my-8">
+            <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">
+                  Penyesuaian Fisik Stok
+                </span>
+                <h3 className="text-base font-bold text-slate-900">
+                  Stok Opname: {selectedMaterial.name}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Stok fisik saat ini: <strong className="text-slate-800">{selectedMaterial.currentStock} {selectedMaterial.unit}</strong>
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedMaterial(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             <form onSubmit={handleAdjustStock} className="space-y-3">
@@ -330,7 +356,7 @@ export default function InventoryPage() {
                   <select
                     value={adjustType}
                     onChange={(e) => setAdjustType(e.target.value as 'IN' | 'OUT')}
-                    className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-bold"
+                    className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                   >
                     <option value="IN">TAMBAH STOK (+)</option>
                     <option value="OUT">KURANGI STOK (-)</option>
@@ -344,7 +370,7 @@ export default function InventoryPage() {
                     required
                     value={adjustQty}
                     onChange={(e) => setAdjustQty(e.target.value)}
-                    className="w-full px-3 py-2 text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl"
+                    className="w-full px-3.5 py-2 text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                   />
                 </div>
               </div>
@@ -354,7 +380,7 @@ export default function InventoryPage() {
                 <select
                   value={adjustRefType}
                   onChange={(e) => setAdjustRefType(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+                  className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                 >
                   <option value="OPNAME_ADJUSTMENT">Stok Opname Rutin</option>
                   <option value="WASTE">Bahan Rusak / Cacat (Waste)</option>
@@ -370,22 +396,22 @@ export default function InventoryPage() {
                   value={adjustReason}
                   onChange={(e) => setAdjustReason(e.target.value)}
                   placeholder="Misal: Pecah saat pengiriman, kadaluwarsa per 17 Sep"
-                  className="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+                  className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                 />
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setSelectedMaterial(null)}
-                  className="w-1/3 py-2.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl"
+                  className="px-4 py-2.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={submittingAdjust}
-                  className="w-2/3 py-2.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center justify-center gap-2"
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 transition disabled:opacity-50"
                 >
                   {submittingAdjust ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Simpan Stok Opname'}
                 </button>

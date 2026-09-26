@@ -18,7 +18,7 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
       <style jsx global>{`
         @media print {
           body * {
@@ -41,25 +41,34 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
         }
       `}</style>
 
-      <div className="bg-white rounded-3xl max-w-sm w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        {/* Top Banner */}
-        <div className="bg-emerald-500 text-white p-4 text-center">
-          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
-            <CheckCircle2 className="w-6 h-6" />
+      <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 my-8">
+        {/* Header */}
+        <div className="flex items-start justify-between border-b border-slate-100 pb-3">
+          <div>
+            <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              Transaksi Berhasil
+            </span>
+            <h3 className="text-base font-bold text-slate-900">Struk Pembayaran</h3>
+            <p className="text-xs text-slate-500">Nota belanja pelanggan siap dicetak</p>
           </div>
-          <h3 className="text-base font-bold">Transaksi Berhasil!</h3>
-          <p className="text-xs text-emerald-100">Nota struk belanja siap dicetak</p>
+          <button
+            onClick={onClose}
+            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Printable Thermal Receipt Box */}
-        <div className="p-6 overflow-y-auto max-h-[60vh] bg-slate-50">
+        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 max-h-[55vh] overflow-y-auto">
           <div
             id="thermal-receipt-printable"
-            className="bg-white p-4 rounded-xl border border-slate-200 shadow-inner font-mono text-xs text-slate-800 space-y-3"
+            className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-xs font-mono text-xs text-slate-800 space-y-3"
           >
             {/* Store Header */}
             <div className="text-center space-y-0.5 border-b border-dashed border-slate-300 pb-3">
-              <div className="font-bold text-sm tracking-wider uppercase">F&B RESTO & POS</div>
+              <div className="font-bold text-sm tracking-wider uppercase text-slate-900">F&B RESTO & POS</div>
               <div className="text-[10px] text-slate-500">Jl. Kuliner No. 123, Indonesia</div>
               <div className="text-[10px] text-slate-500">Telp: 0812-3456-7890</div>
             </div>
@@ -143,17 +152,17 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
         </div>
 
         {/* Modal Actions */}
-        <div className="p-4 bg-white border-t border-slate-100 flex items-center gap-2">
+        <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
           <button
             onClick={handlePrint}
-            className="flex-1 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md transition"
+            className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition"
           >
             <Printer className="w-4 h-4 text-amber-400" />
             <span>Cetak Struk</span>
           </button>
           <button
             onClick={onClose}
-            className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 transition"
+            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 transition"
           >
             <span>Transaksi Baru</span>
           </button>

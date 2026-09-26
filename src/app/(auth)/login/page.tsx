@@ -36,12 +36,6 @@ export default function LoginPage() {
     }
   };
 
-  const setDemoAccount = (demoEmail: string, demoPw: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPw);
-    setError('');
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4 relative overflow-hidden">
       {/* Background Decorative Pattern */}
@@ -76,8 +70,8 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@fnb.com atau kasir@fnb.com"
-                  className="w-full pl-9 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                  placeholder="Masukkan email Anda"
+                  className="w-full pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                 />
               </div>
             </div>
@@ -92,7 +86,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-9 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                  className="w-full pl-9 pr-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
                 />
               </div>
             </div>
@@ -115,34 +109,11 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          {/* Quick Demo Credentials */}
-          <div className="pt-4 border-t border-slate-100">
-            <p className="text-[11px] font-medium text-slate-400 text-center mb-2">Akun Demo Cepat (Klik untuk isi):</p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setDemoAccount('admin@fnb.com', 'admin123')}
-                className="p-2 border border-slate-200 rounded-lg text-left hover:border-blue-400 hover:bg-blue-50/50 transition text-xs"
-              >
-                <div className="font-semibold text-slate-800">Admin Owner</div>
-                <div className="text-[10px] text-slate-500">admin@fnb.com</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setDemoAccount('kasir@fnb.com', 'kasir123')}
-                className="p-2 border border-slate-200 rounded-lg text-left hover:border-emerald-400 hover:bg-emerald-50/50 transition text-xs"
-              >
-                <div className="font-semibold text-slate-800">Kasir POS</div>
-                <div className="text-[10px] text-slate-500">kasir@fnb.com</div>
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Footer */}
         <div className="bg-slate-50 py-3 px-6 text-center text-[11px] text-slate-400 border-t border-slate-100">
-          Antigravity F&B ERP & POS System v2.1
+          F&B ERP & POS System v2.1
         </div>
       </div>
     </div>

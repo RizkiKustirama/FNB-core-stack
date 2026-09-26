@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  basePath: '/api/auth',
   trustHost: true,
   providers: [
     CredentialsProvider({
@@ -64,5 +65,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
     strategy: 'jwt',
   },
-  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'fnb-pos-super-secret-key-change-in-prod',
+  secret:
+    (process.env.AUTH_SECRET && process.env.AUTH_SECRET.trim() !== '')
+      ? process.env.AUTH_SECRET
+      : (process.env.NEXTAUTH_SECRET && process.env.NEXTAUTH_SECRET.trim() !== '')
+      ? process.env.NEXTAUTH_SECRET
+      : 'fnb-pos-super-secret-key-change-in-prod',
 });

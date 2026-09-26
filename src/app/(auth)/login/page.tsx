@@ -28,16 +28,7 @@ export default function LoginPage() {
         setError('Email atau password salah. Silakan coba lagi.');
         setLoading(false);
       } else {
-        // Fetch session to determine role redirect
-        const sessionRes = await fetch('/api/auth/session');
-        const session = await sessionRes.json();
-
-        if (session?.user?.role === 'ADMIN') {
-          router.push('/dashboard');
-        } else {
-          router.push('/pos');
-        }
-        router.refresh();
+        window.location.href = '/';
       }
     } catch (err: any) {
       setError('Terjadi kesalahan otentikasi server.');

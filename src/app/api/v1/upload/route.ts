@@ -36,8 +36,14 @@ export async function POST(req: Request) {
     });
   } catch (error: any) {
     console.error('Upload Error:', error);
+    const isReadOnly = error?.code === 'EROFS' || error?.message?.includes('read-only');
     return NextResponse.json(
-      { success: false, message: error.message || 'Gagal mengunggah file' },
+      {
+        success: false,
+        message: isReadOnly
+          ? 'Lingkungan Serverless (Vercel) bersifat Read-Only. Silakan gunakan opsi URL Gambar (Image URL) pada form menu.'
+          : error.message || 'Gagal mengunggah file',
+      },
       { status: 500 }
     );
   }

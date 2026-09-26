@@ -106,7 +106,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <button
-            onClick={() => signOut({ callbackUrl: '/login' })}
+            onClick={async () => {
+              await signOut({ redirect: false });
+              window.location.href = '/login';
+            }}
             className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-700 rounded-lg transition"
             title="Logout"
           >

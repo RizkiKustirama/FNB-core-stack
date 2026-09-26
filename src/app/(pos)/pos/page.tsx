@@ -17,10 +17,7 @@ export default function PosPage() {
 
   const { items, getTotalAmount } = useCartStore();
   const totalItemCount = items.reduce((sum, item) => sum + item.qty, 0);
-  const subtotal = getTotalAmount();
-  const tax = Math.round(subtotal * 0.1);
-  const serviceCharge = Math.round(subtotal * 0.05);
-  const grandTotal = subtotal + tax + serviceCharge;
+  const grandTotal = getTotalAmount();
 
   const handleCheckoutSuccess = (orderData: any) => {
     setIsCheckoutOpen(false);

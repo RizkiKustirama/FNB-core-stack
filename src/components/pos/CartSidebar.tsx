@@ -37,9 +37,7 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
   }, []);
 
   const subtotal = getSubtotal();
-  const tax = Math.round(subtotal * 0.1); // PB1 Tax 10%
-  const serviceCharge = Math.round(subtotal * 0.05); // Service Charge 5%
-  const grandTotal = subtotal + tax + serviceCharge;
+  const grandTotal = subtotal;
 
   return (
     <div className="w-full lg:w-[420px] bg-white border-l border-slate-200 flex flex-col h-full shadow-lg shrink-0 overflow-hidden">
@@ -170,21 +168,8 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
       {items.length > 0 && (
         <div className="p-3.5 sm:p-4 bg-slate-50 border-t border-slate-200 space-y-3 shrink-0">
           <div className="space-y-1 text-xs text-slate-500">
-            <div className="flex justify-between">
-              <span>Subtotal</span>
-              <span className="font-bold text-slate-800">{formatCurrency(subtotal)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>PB1 Tax (10%)</span>
-              <span className="font-bold text-slate-800">{formatCurrency(tax)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Service Charge (5%)</span>
-              <span className="font-bold text-slate-800">{formatCurrency(serviceCharge)}</span>
-            </div>
-
             {/* Total Amount */}
-            <div className="pt-2 border-t border-slate-200 flex justify-between items-end">
+            <div className="flex justify-between items-end">
               <div className="flex flex-col">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   TOTAL TAGIHAN

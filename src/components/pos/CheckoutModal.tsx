@@ -13,10 +13,7 @@ interface CheckoutModalProps {
 
 export function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutModalProps) {
   const { items, getTotalAmount, clearCart } = useCartStore();
-  const subtotal = getTotalAmount();
-  const tax = Math.round(subtotal * 0.1);
-  const serviceCharge = Math.round(subtotal * 0.05);
-  const grandTotal = subtotal + tax + serviceCharge;
+  const grandTotal = getTotalAmount();
 
   const [paymentMethod, setPaymentMethod] = useState<'CASH' | 'QRIS' | 'TRANSFER'>('CASH');
   const [cashReceived, setCashReceived] = useState<string>(String(grandTotal));
@@ -98,7 +95,7 @@ export function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutModalProps
           {/* Grand Total Card */}
           <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-center space-y-0.5">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-              Total Tagihan (Inc. Pajak & Service)
+              Total Tagihan
             </span>
             <div className="text-2xl font-black text-blue-600">
               {formatCurrency(grandTotal)}

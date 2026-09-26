@@ -5,7 +5,7 @@ import { getToken } from 'next-auth/jwt';
 export async function middleware(req: NextRequest) {
   const token = await getToken({
     req,
-    secret: process.env.NEXTAUTH_SECRET || 'fnb-pos-super-secret-key-change-in-prod',
+    secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'fnb-pos-super-secret-key-change-in-prod',
   });
 
   const { pathname } = req.nextUrl;

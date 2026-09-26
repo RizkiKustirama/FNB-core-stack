@@ -63,5 +63,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
     strategy: 'jwt',
   },
-  secret: process.env.NEXTAUTH_SECRET || 'fnb-pos-super-secret-key-change-in-prod',
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'fnb-pos-super-secret-key-change-in-prod',
 });

@@ -1,16 +1,26 @@
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
-  const session = await auth();
+  try {
+    const session = await auth();
 
-  if (!session?.user) {
+    if (!session?.user) {
+      redirect('/login');
+    }
+
+    if ((session.user as any).role === 'ADMIN') {
+      redirect('/dashboard');
+    } else {
+      redirect('/pos');
+    }
+  } catch (err: any) {
+    if (err?.digest?.startsWith('NEXT_REDIRECT') || err?.digest === 'DYNAMIC_SERVER_USAGE') {
+      throw err;
+    }
+    console.error('Home Page Auth Error:', err);
     redirect('/login');
-  }
-
-  if ((session.user as any).role === 'ADMIN') {
-    redirect('/dashboard');
-  } else {
-    redirect('/pos');
   }
 }

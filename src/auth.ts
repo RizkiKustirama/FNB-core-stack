@@ -3,9 +3,17 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 
+// Ensure AUTH_SECRET is always present in process.env for NextAuth v5 core
+if (!process.env.AUTH_SECRET) {
+  process.env.AUTH_SECRET = process.env.NEXTAUTH_SECRET || 'fnb-pos-super-secret-key-change-in-prod';
+}
+
+const secretKey = process.env.AUTH_SECRET;
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   basePath: '/api/auth',
   trustHost: true,
+  secret: secretKey,
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -18,7 +26,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error('Email dan Password wajib diisi.');
         }
 
-        const email = credentials.email as string;
+        const email = (credentials.email as string).trim().toLowerCase();
         const password = credentials.password as string;
 
         const user = await prisma.user.findUnique({
@@ -47,28 +55,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role;
+        token.role = (user as any).role || 'CASHIER';
       }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        (session.user as any).role = token.role as string;
+      if (session && session.user && token) {
+        session.user.id = (token.id as string) || (token.sub as string);
+        (session.user as any).role = (token.role as string) || 'CASHIER';
       }
       return session;
     },
   },
   pages: {
     signIn: '/login',
+    error: '/login',
   },
   session: {
     strategy: 'jwt',
   },
-  secret:
-    (process.env.AUTH_SECRET && process.env.AUTH_SECRET.trim() !== '')
-      ? process.env.AUTH_SECRET
-      : (process.env.NEXTAUTH_SECRET && process.env.NEXTAUTH_SECRET.trim() !== '')
-      ? process.env.NEXTAUTH_SECRET
-      : 'fnb-pos-super-secret-key-change-in-prod',
 });

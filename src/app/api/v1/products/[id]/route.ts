@@ -39,11 +39,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    await deleteProduct(id);
+    const result = await deleteProduct(id);
 
     return NextResponse.json({
       success: true,
-      message: 'Berhasil menghapus menu',
+      data: result,
+      message: result.message,
     });
   } catch (error: any) {
     return NextResponse.json(

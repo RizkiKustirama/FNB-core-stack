@@ -127,7 +127,28 @@ export async function updateProduct(id: string, input: CreateProductInput) {
 }
 
 export async function deleteProduct(id: string) {
-  return await prisma.product.delete({
+  const orderItemCount = await prisma.orderItem.count({
+    where: { productId: id },
+  });
+
+  if (orderItemCount > 0) {
+    // Product has sales history: deactivate to preserve financial & sales logs
+    await prisma.product.update({
+      where: { id },
+      data: { isActive: false },
+    });
+    return {
+      softDeleted: true,
+      message: 'Menu ini pernah ditransaksikan, sehingga statusnya diubah menjadi Non-Aktif agar riwayat penjualan tetap terjaga.',
+    };
+  }
+
+  // Safe to hard delete if no sales history exists
+  await prisma.product.delete({
     where: { id },
   });
+  return {
+    softDeleted: false,
+    message: 'Berhasil menghapus menu.',
+  };
 }

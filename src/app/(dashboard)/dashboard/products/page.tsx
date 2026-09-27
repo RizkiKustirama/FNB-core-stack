@@ -273,6 +273,9 @@ export default function ProductsPage() {
       const res = await fetch(`/api/v1/products/${id}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
+        if (data.data?.softDeleted) {
+          alert(data.message);
+        }
         fetchAllData();
       } else {
         alert(data.message || 'Gagal menghapus menu');

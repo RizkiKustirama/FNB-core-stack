@@ -19,13 +19,13 @@ export async function getOrders(filter: GetOrdersFilter = {}) {
   if (startDate || endDate) {
     where.createdAt = {};
     if (startDate) {
-      const start = new Date(startDate);
-      start.setHours(0, 0, 0, 0);
+      const [y, m, d] = startDate.split('-').map(Number);
+      const start = new Date(y, m - 1, d, 0, 0, 0, 0);
       where.createdAt.gte = start;
     }
     if (endDate) {
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
+      const [y, m, d] = endDate.split('-').map(Number);
+      const end = new Date(y, m - 1, d, 23, 59, 59, 999);
       where.createdAt.lte = end;
     }
   }

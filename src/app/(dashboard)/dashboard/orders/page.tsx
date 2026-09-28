@@ -87,24 +87,31 @@ export default function OrdersRecapPage() {
     try {
       setLoading(true);
 
-      // Compute date params based on preset
+      // Helper for local YYYY-MM-DD date string
+      const toLocalDateStr = (d: Date) => {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
       let startDateStr: string | undefined;
       let endDateStr: string | undefined;
 
       const now = new Date();
       if (dateFilter === 'TODAY') {
-        startDateStr = now.toISOString().slice(0, 10);
-        endDateStr = now.toISOString().slice(0, 10);
+        startDateStr = toLocalDateStr(now);
+        endDateStr = toLocalDateStr(now);
       } else if (dateFilter === 'WEEK') {
         const weekAgo = new Date(now);
         weekAgo.setDate(now.getDate() - 7);
-        startDateStr = weekAgo.toISOString().slice(0, 10);
-        endDateStr = now.toISOString().slice(0, 10);
+        startDateStr = toLocalDateStr(weekAgo);
+        endDateStr = toLocalDateStr(now);
       } else if (dateFilter === 'MONTH') {
         const monthAgo = new Date(now);
         monthAgo.setMonth(now.getMonth() - 1);
-        startDateStr = monthAgo.toISOString().slice(0, 10);
-        endDateStr = now.toISOString().slice(0, 10);
+        startDateStr = toLocalDateStr(monthAgo);
+        endDateStr = toLocalDateStr(now);
       }
 
       const params = new URLSearchParams();

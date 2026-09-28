@@ -81,7 +81,8 @@ export default function OrdersRecapPage() {
   const [dateFilter, setDateFilter] = useState<'TODAY' | 'WEEK' | 'MONTH' | 'ALL'>('TODAY');
   const [paymentFilter, setPaymentFilter] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [sortOption, setSortOption] = useState<string>('DATE_DESC');
+  const [sortDate, setSortDate] = useState<string>('DESC');
+  const [sortTotal, setSortTotal] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const ITEMS_PER_PAGE = 10;
@@ -93,7 +94,7 @@ export default function OrdersRecapPage() {
   // Reset page on filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [dateFilter, paymentFilter, statusFilter, sortOption, searchQuery]);
+  }, [dateFilter, paymentFilter, statusFilter, sortDate, sortTotal, searchQuery]);
 
   const fetchOrdersData = async () => {
     try {
@@ -171,11 +172,10 @@ export default function OrdersRecapPage() {
       return matchesStatus;
     })
     .sort((a, b) => {
-      if (sortOption === 'DATE_DESC') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      if (sortOption === 'DATE_ASC') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      if (sortOption === 'TOTAL_DESC') return b.totalAmount - a.totalAmount;
-      if (sortOption === 'TOTAL_ASC') return a.totalAmount - b.totalAmount;
-      return 0;
+      if (sortTotal === 'DESC') return b.totalAmount - a.totalAmount;
+      if (sortTotal === 'ASC') return a.totalAmount - b.totalAmount;
+      if (sortDate === 'ASC') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
   const totalPages = Math.max(1, Math.ceil(filteredOrders.length / ITEMS_PER_PAGE));
@@ -287,35 +287,20 @@ export default function OrdersRecapPage() {
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3 md:space-y-0 md:flex md:items-center md:justify-between gap-3">
-        {/* Quick Date Range Buttons */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
-          <span className="text-xs font-semibold text-slate-400 mr-1 flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5" />
-            Waktu:
-          </span>
-          {[
-            { id: 'TODAY', label: 'Hari Ini' },
-            { id: 'WEEK', label: '7 Hari Terakhir' },
-            { id: 'MONTH', label: '30 Hari Terakhir' },
-            { id: 'ALL', label: 'Semua Waktu' },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setDateFilter(item.id as any)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-                dateFilter === item.id
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
+      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          {/* Dropdown Rentang Waktu */}
+          <select
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value as any)}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="TODAY">Hari Ini</option>
+            <option value="WEEK">7 Hari Terakhir</option>
+            <option value="MONTH">30 Hari Terakhir</option>
+            <option value="ALL">Semua Waktu</option>
+          </select>
 
-        {/* Payment, Status & Search Filters */}
-        <div className="flex flex-wrap items-center gap-2">
           {/* Payment Filter */}
           <select
             value={paymentFilter}
@@ -335,34 +320,46 @@ export default function OrdersRecapPage() {
             className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="ALL">Semua Status</option>
-            <option value="PAID">Status: Lunas</option>
-            <option value="CANCELLED">Status: Dibatalkan</option>
+            <option value="PAID">Lunas</option>
+            <option value="CANCELLED">Dibatalkan</option>
           </select>
 
-          {/* Sort Dropdown */}
+          {/* Dropdown Urut Waktu */}
           <select
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
+            value={sortDate}
+            onChange={(e) => {
+              setSortDate(e.target.value);
+              setSortTotal('ALL');
+            }}
             className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="DATE_DESC">Waktu: Terbaru</option>
-            <option value="DATE_ASC">Waktu: Terlama</option>
-            <option value="TOTAL_DESC">Total: Terbesar</option>
-            <option value="TOTAL_ASC">Total: Terkecil</option>
+            <option value="DESC">Terbaru</option>
+            <option value="ASC">Terlama</option>
           </select>
 
-          {/* Search Form */}
-          <form onSubmit={handleSearchSubmit} className="relative flex-1 sm:w-48">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="No. Struk / Kasir..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
-            />
-          </form>
+          {/* Dropdown Urut Total */}
+          <select
+            value={sortTotal}
+            onChange={(e) => setSortTotal(e.target.value)}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="ALL">Semua Nominal</option>
+            <option value="DESC">Terbesar</option>
+            <option value="ASC">Terkecil</option>
+          </select>
         </div>
+
+        {/* Search Form */}
+        <form onSubmit={handleSearchSubmit} className="relative w-full md:w-48">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="No. Struk / Kasir..."
+            className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
+          />
+        </form>
       </div>
 
       {/* Orders Table Card */}

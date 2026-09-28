@@ -36,14 +36,15 @@ export default function CashflowPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
-  const [sortOption, setSortOption] = useState<string>('DATE_DESC');
+  const [sortDate, setSortDate] = useState<string>('DESC');
+  const [sortAmount, setSortAmount] = useState<string>('ALL');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const ITEMS_PER_PAGE = 10;
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, typeFilter, categoryFilter, sortOption]);
+  }, [searchQuery, typeFilter, categoryFilter, sortDate, sortAmount]);
 
   // Modal Expense State
   const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
@@ -114,11 +115,10 @@ export default function CashflowPage() {
       return matchesSearch && matchesType && matchesCategory;
     })
     .sort((a, b) => {
-      if (sortOption === 'DATE_DESC') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      if (sortOption === 'DATE_ASC') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      if (sortOption === 'AMOUNT_DESC') return b.amount - a.amount;
-      if (sortOption === 'AMOUNT_ASC') return a.amount - b.amount;
-      return 0;
+      if (sortAmount === 'DESC') return b.amount - a.amount;
+      if (sortAmount === 'ASC') return a.amount - b.amount;
+      if (sortDate === 'ASC') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
   const totalIn = logs.filter((l) => l.type === 'IN').reduce((sum, l) => sum + l.amount, 0);
@@ -205,31 +205,18 @@ export default function CashflowPage() {
 
       {/* Filter & Search Controls */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-        <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-hide">
-          <span className="text-xs font-semibold text-slate-400 mr-1 flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5" />
-            Tipe:
-          </span>
-          {[
-            { id: 'ALL', label: 'Semua Transaksi' },
-            { id: 'IN', label: 'Uang Masuk (+)' },
-            { id: 'OUT', label: 'Uang Keluar (-)' },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setTypeFilter(item.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-                typeFilter === item.id
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          {/* Dropdown Tipe */}
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="ALL">Semua Transaksi</option>
+            <option value="IN">Uang Masuk (+)</option>
+            <option value="OUT">Uang Keluar (-)</option>
+          </select>
+
           {/* Category Filter */}
           <select
             value={categoryFilter}
@@ -244,29 +231,41 @@ export default function CashflowPage() {
             <option value="OTHER">Lain-lain</option>
           </select>
 
-          {/* Sort Dropdown */}
+          {/* Dropdown Urut Waktu */}
           <select
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
+            value={sortDate}
+            onChange={(e) => {
+              setSortDate(e.target.value);
+              setSortAmount('ALL');
+            }}
             className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="DATE_DESC">Waktu: Terbaru</option>
-            <option value="DATE_ASC">Waktu: Terlama</option>
-            <option value="AMOUNT_DESC">Nominal: Terbesar</option>
-            <option value="AMOUNT_ASC">Nominal: Terkecil</option>
+            <option value="DESC">Terbaru</option>
+            <option value="ASC">Terlama</option>
           </select>
 
-          {/* Search Input */}
-          <div className="relative flex-1 sm:w-56">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari keterangan / user..."
-              className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-900 transition"
-            />
-          </div>
+          {/* Dropdown Urut Nominal */}
+          <select
+            value={sortAmount}
+            onChange={(e) => setSortAmount(e.target.value)}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="ALL">Semua Nominal</option>
+            <option value="DESC">Terbesar</option>
+            <option value="ASC">Terkecil</option>
+          </select>
+        </div>
+
+        {/* Search Input */}
+        <div className="relative w-full md:w-64">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cari keterangan / user..."
+            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-900 transition"
+          />
         </div>
       </div>
 

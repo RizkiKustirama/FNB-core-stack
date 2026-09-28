@@ -290,14 +290,15 @@ export default function ProductsPage() {
   };
 
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [sortOption, setSortOption] = useState<string>('NAME_ASC');
+  const [sortName, setSortName] = useState<string>('ALL');
+  const [sortPrice, setSortPrice] = useState<string>('ALL');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const ITEMS_PER_PAGE = 10;
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategory, searchQuery, statusFilter, sortOption]);
+  }, [selectedCategory, searchQuery, statusFilter, sortName, sortPrice]);
 
   // Filter & Sort products
   const filteredProducts = products
@@ -311,10 +312,10 @@ export default function ProductsPage() {
       return matchesCat && matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
-      if (sortOption === 'NAME_ASC') return a.name.localeCompare(b.name);
-      if (sortOption === 'NAME_DESC') return b.name.localeCompare(a.name);
-      if (sortOption === 'PRICE_ASC') return a.price - b.price;
-      if (sortOption === 'PRICE_DESC') return b.price - a.price;
+      if (sortName === 'ASC') return a.name.localeCompare(b.name);
+      if (sortName === 'DESC') return b.name.localeCompare(a.name);
+      if (sortPrice === 'ASC') return a.price - b.price;
+      if (sortPrice === 'DESC') return b.price - a.price;
       return 0;
     });
 
@@ -358,67 +359,71 @@ export default function ProductsPage() {
 
       {/* Filter & Search Controls */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-        <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-hide">
-          <button
-            onClick={() => setSelectedCategory('ALL')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-              selectedCategory === 'ALL'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            Semua ({products.length})
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-                selectedCategory === cat.id
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
-
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          {/* Status Filter Dropdown */}
+          {/* Dropdown Kategori */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="ALL">Semua Kategori</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+
+          {/* Dropdown Status */}
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="ALL">Semua Status</option>
-            <option value="ACTIVE">Status: Aktif</option>
-            <option value="INACTIVE">Status: Non-Aktif</option>
+            <option value="ACTIVE">Aktif</option>
+            <option value="INACTIVE">Non-Aktif</option>
           </select>
 
-          {/* Sort Dropdown */}
+          {/* Dropdown Urut Nama */}
           <select
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
+            value={sortName}
+            onChange={(e) => {
+              setSortName(e.target.value);
+              if (e.target.value !== 'ALL') setSortPrice('ALL');
+            }}
             className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="NAME_ASC">Urut: Nama A-Z</option>
-            <option value="NAME_DESC">Urut: Nama Z-A</option>
-            <option value="PRICE_ASC">Harga: Terendah</option>
-            <option value="PRICE_DESC">Harga: Tertinggi</option>
+            <option value="ALL">Semua Nama</option>
+            <option value="ASC">A - Z</option>
+            <option value="DESC">Z - A</option>
           </select>
 
-          {/* Search Box */}
-          <div className="relative flex-1 sm:w-56">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari nama menu..."
-              className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-900 transition"
-            />
-          </div>
+          {/* Dropdown Urut Harga */}
+          <select
+            value={sortPrice}
+            onChange={(e) => {
+              setSortPrice(e.target.value);
+              if (e.target.value !== 'ALL') setSortName('ALL');
+            }}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="ALL">Semua Harga</option>
+            <option value="ASC">Terendah</option>
+            <option value="DESC">Tertinggi</option>
+          </select>
+        </div>
+
+        {/* Search Box */}
+        <div className="relative w-full md:w-64">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cari nama menu..."
+            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-900 transition"
+          />
         </div>
       </div>
 

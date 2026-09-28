@@ -35,14 +35,15 @@ export default function InventoryPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [unitFilter, setUnitFilter] = useState<string>('ALL');
-  const [sortOption, setSortOption] = useState<string>('NAME_ASC');
+  const [sortName, setSortName] = useState<string>('ALL');
+  const [sortStock, setSortStock] = useState<string>('ALL');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const ITEMS_PER_PAGE = 10;
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, statusFilter, unitFilter, sortOption]);
+  }, [searchQuery, statusFilter, unitFilter, sortName, sortStock]);
 
   // Modal Add Material State
   const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
@@ -158,9 +159,10 @@ export default function InventoryPage() {
       return matchesSearch && matchesStatus && matchesUnit;
     })
     .sort((a, b) => {
-      if (sortOption === 'NAME_ASC') return a.name.localeCompare(b.name);
-      if (sortOption === 'STOCK_ASC') return a.currentStock - b.currentStock;
-      if (sortOption === 'STOCK_DESC') return b.currentStock - a.currentStock;
+      if (sortName === 'ASC') return a.name.localeCompare(b.name);
+      if (sortName === 'DESC') return b.name.localeCompare(a.name);
+      if (sortStock === 'ASC') return a.currentStock - b.currentStock;
+      if (sortStock === 'DESC') return b.currentStock - a.currentStock;
       return 0;
     });
 
@@ -210,65 +212,69 @@ export default function InventoryPage() {
 
       {/* Filter & Search Controls */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-        <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-hide">
-          <span className="text-xs font-semibold text-slate-400 mr-1 flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5" />
-            Status:
-          </span>
-          {[
-            { id: 'ALL', label: 'Semua Stok' },
-            { id: 'LOW_STOCK', label: 'Stok Menipis' },
-            { id: 'NORMAL', label: 'Stok Aman' },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setStatusFilter(item.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-                statusFilter === item.id
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          {/* Unit Filter */}
+          {/* Dropdown Status */}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="ALL">Semua Status</option>
+            <option value="LOW_STOCK">Stok Menipis</option>
+            <option value="NORMAL">Stok Aman</option>
+          </select>
+
+          {/* Dropdown Satuan */}
           <select
             value={unitFilter}
             onChange={(e) => setUnitFilter(e.target.value)}
             className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="ALL">Semua Satuan</option>
-            <option value="GRAM">Satuan: GRAM</option>
-            <option value="ML">Satuan: ML</option>
-            <option value="PCS">Satuan: PCS</option>
+            <option value="GRAM">GRAM</option>
+            <option value="ML">ML</option>
+            <option value="PCS">PCS</option>
           </select>
 
-          {/* Sort Dropdown */}
+          {/* Dropdown Urut Nama */}
           <select
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
+            value={sortName}
+            onChange={(e) => {
+              setSortName(e.target.value);
+              if (e.target.value !== 'ALL') setSortStock('ALL');
+            }}
             className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="NAME_ASC">Urut: Nama A-Z</option>
-            <option value="STOCK_ASC">Stok: Terendah</option>
-            <option value="STOCK_DESC">Stok: Terbanyak</option>
+            <option value="ALL">Semua Nama</option>
+            <option value="ASC">A - Z</option>
+            <option value="DESC">Z - A</option>
           </select>
 
-          {/* Search Input */}
-          <div className="relative flex-1 sm:w-56">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Cari nama bahan / kategori..."
-              className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-900 transition"
-            />
-          </div>
+          {/* Dropdown Urut Stok */}
+          <select
+            value={sortStock}
+            onChange={(e) => {
+              setSortStock(e.target.value);
+              if (e.target.value !== 'ALL') setSortName('ALL');
+            }}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="ALL">Semua Stok</option>
+            <option value="ASC">Terendah</option>
+            <option value="DESC">Terbanyak</option>
+          </select>
+        </div>
+
+        {/* Search Input */}
+        <div className="relative w-full md:w-64">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cari nama bahan / kategori..."
+            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-900 transition"
+          />
         </div>
       </div>
 

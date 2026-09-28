@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { Utensils, LogOut, LayoutDashboard, Clock, User, ShieldCheck } from 'lucide-react';
+import { Utensils, LogOut, LayoutDashboard, Clock, User, ShieldCheck, Receipt } from 'lucide-react';
 
 export function PosHeader() {
   const { data: session } = useSession();
@@ -65,6 +65,15 @@ export function PosHeader() {
             </div>
           </div>
         </div>
+
+        <Link
+          href="/dashboard/orders"
+          className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl border border-slate-700 transition"
+          title="Rekap Pesanan Hari Ini"
+        >
+          <Receipt className="w-4 h-4 text-emerald-400" />
+          <span className="hidden sm:inline">Rekap Pesanan</span>
+        </Link>
 
         {isAdmin && (
           <Link

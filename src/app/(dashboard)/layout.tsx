@@ -20,6 +20,7 @@ import {
 
 const navItems = [
   { href: '/dashboard', label: 'Ringkasan ERP', icon: LayoutDashboard },
+  { href: '/dashboard/orders', label: 'Rekap & Riwayat Pesanan', icon: ShoppingBag },
   { href: '/dashboard/inventory', label: 'Bahan Baku & Stok', icon: Boxes },
   { href: '/dashboard/products', label: 'Katalog & Resep BoM', icon: UtensilsCrossed },
   { href: '/dashboard/cashflow', label: 'Arus Kas & Pengeluaran', icon: Receipt },

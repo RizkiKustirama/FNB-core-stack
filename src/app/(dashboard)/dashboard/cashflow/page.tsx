@@ -2,7 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { formatCurrency } from '@/lib/utils';
-import { Receipt, Plus, RefreshCw, TrendingUp, TrendingDown, CheckCircle, Loader2, X } from 'lucide-react';
+import {
+  Receipt,
+  Plus,
+  RefreshCw,
+  TrendingUp,
+  TrendingDown,
+  CheckCircle,
+  Loader2,
+  X,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+} from 'lucide-react';
 
 interface CashflowLog {
   id: string;
@@ -18,6 +31,19 @@ interface CashflowLog {
 export default function CashflowPage() {
   const [logs, setLogs] = useState<CashflowLog[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
+  // Filters & Pagination
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [typeFilter, setTypeFilter] = useState<string>('ALL');
+  const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
+  const [sortOption, setSortOption] = useState<string>('DATE_DESC');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const ITEMS_PER_PAGE = 10;
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, typeFilter, categoryFilter, sortOption]);
 
   // Modal Expense State
   const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
@@ -76,8 +102,33 @@ export default function CashflowPage() {
     }
   };
 
+  // Filter & Sort Cashflow Logs
+  const filteredLogs = logs
+    .filter((log) => {
+      const matchesSearch =
+        (log.description && log.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (log.user && log.user.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        log.category.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesType = typeFilter === 'ALL' || log.type === typeFilter;
+      const matchesCategory = categoryFilter === 'ALL' || log.category === categoryFilter;
+      return matchesSearch && matchesType && matchesCategory;
+    })
+    .sort((a, b) => {
+      if (sortOption === 'DATE_DESC') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      if (sortOption === 'DATE_ASC') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      if (sortOption === 'AMOUNT_DESC') return b.amount - a.amount;
+      if (sortOption === 'AMOUNT_ASC') return a.amount - b.amount;
+      return 0;
+    });
+
   const totalIn = logs.filter((l) => l.type === 'IN').reduce((sum, l) => sum + l.amount, 0);
   const totalOut = logs.filter((l) => l.type === 'OUT').reduce((sum, l) => sum + l.amount, 0);
+
+  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / ITEMS_PER_PAGE));
+  const paginatedLogs = filteredLogs.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="space-y-6">
@@ -152,67 +203,182 @@ export default function CashflowPage() {
         </div>
       </div>
 
+      {/* Filter & Search Controls */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-hide">
+          <span className="text-xs font-semibold text-slate-400 mr-1 flex items-center gap-1">
+            <Filter className="w-3.5 h-3.5" />
+            Tipe:
+          </span>
+          {[
+            { id: 'ALL', label: 'Semua Transaksi' },
+            { id: 'IN', label: 'Uang Masuk (+)' },
+            { id: 'OUT', label: 'Uang Keluar (-)' },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setTypeFilter(item.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+                typeFilter === item.id
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          {/* Category Filter */}
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="ALL">Semua Kategori</option>
+            <option value="POS_SALES">Penjualan POS</option>
+            <option value="SUPPLIES_PURCHASE">Belanja Bahan</option>
+            <option value="UTILITIES">Utilitas (Listrik/Air/Net)</option>
+            <option value="SALARY">Gaji Karyawan</option>
+            <option value="OTHER">Lain-lain</option>
+          </select>
+
+          {/* Sort Dropdown */}
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="DATE_DESC">Waktu: Terbaru</option>
+            <option value="DATE_ASC">Waktu: Terlama</option>
+            <option value="AMOUNT_DESC">Nominal: Terbesar</option>
+            <option value="AMOUNT_ASC">Nominal: Terkecil</option>
+          </select>
+
+          {/* Search Input */}
+          <div className="relative flex-1 sm:w-56">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari keterangan / user..."
+              className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-900 transition"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Cashflow Logs Table Card */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-100 font-bold text-xs text-slate-700">
-          Riwayat Jurnal Arus Kas
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
+        <div className="p-4 border-b border-slate-100 font-bold text-xs text-slate-700 flex items-center justify-between">
+          <span>Riwayat Jurnal Arus Kas</span>
+          <span className="text-slate-400 font-normal">
+            Total {filteredLogs.length} jurnal (Limit 10 per halaman)
+          </span>
         </div>
 
         {loading ? (
           <div className="p-8 text-center text-xs text-slate-400">Memuat riwayat arus kas...</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
-              <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
-                <tr>
-                  <th className="p-3.5 pl-5">Waktu</th>
-                  <th className="p-3.5">Tipe</th>
-                  <th className="p-3.5">Kategori</th>
-                  <th className="p-3.5">Keterangan</th>
-                  <th className="p-3.5">Dicatat Oleh</th>
-                  <th className="p-3.5 pr-5 text-right">Nominal</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {logs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50/80 transition">
-                    <td className="p-3.5 pl-5 text-slate-500">
-                      {new Date(log.createdAt).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                      })}{' '}
-                      {new Date(log.createdAt).toLocaleTimeString('id-ID', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </td>
-                    <td className="p-3.5">
-                      {log.type === 'IN' ? (
-                        <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                          MASUK (+)
-                        </span>
-                      ) : (
-                        <span className="bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                          KELUAR (-)
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-3.5 font-semibold text-slate-700">{log.category}</td>
-                    <td className="p-3.5 text-slate-600">{log.description || '-'}</td>
-                    <td className="p-3.5 text-slate-500">{log.user?.name || 'Sistem POS'}</td>
-                    <td
-                      className={`p-3.5 pr-5 text-right font-bold ${
-                        log.type === 'IN' ? 'text-emerald-600' : 'text-rose-600'
-                      }`}
-                    >
-                      {log.type === 'IN' ? '+' : '-'} {formatCurrency(log.amount)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        ) : filteredLogs.length === 0 ? (
+          <div className="p-12 text-center text-xs text-slate-400">
+            <Receipt className="w-12 h-12 text-slate-300 mx-auto mb-2 stroke-1" />
+            <p className="font-bold text-slate-700">Tidak ada riwayat arus kas ditemukan.</p>
+            <p className="text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau filter Anda.</p>
           </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-600">
+                <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+                  <tr>
+                    <th className="p-3.5 pl-5">Waktu</th>
+                    <th className="p-3.5">Tipe</th>
+                    <th className="p-3.5">Kategori</th>
+                    <th className="p-3.5">Keterangan</th>
+                    <th className="p-3.5">Dicatat Oleh</th>
+                    <th className="p-3.5 pr-5 text-right">Nominal</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {paginatedLogs.map((log) => (
+                    <tr key={log.id} className="hover:bg-slate-50/80 transition">
+                      <td className="p-3.5 pl-5 text-slate-500">
+                        {new Date(log.createdAt).toLocaleDateString('id-ID', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}{' '}
+                        {new Date(log.createdAt).toLocaleTimeString('id-ID', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </td>
+                      <td className="p-3.5">
+                        {log.type === 'IN' ? (
+                          <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            MASUK (+)
+                          </span>
+                        ) : (
+                          <span className="bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            KELUAR (-)
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3.5 font-semibold text-slate-700">{log.category}</td>
+                      <td className="p-3.5 text-slate-600">{log.description || '-'}</td>
+                      <td className="p-3.5 text-slate-500">{log.user?.name || 'Sistem POS'}</td>
+                      <td
+                        className={`p-3.5 pr-5 text-right font-bold ${
+                          log.type === 'IN' ? 'text-emerald-600' : 'text-rose-600'
+                        }`}
+                      >
+                        {log.type === 'IN' ? '+' : '-'} {formatCurrency(log.amount)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Footer */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+              <div>
+                Menampilkan{' '}
+                <strong className="text-slate-800">
+                  {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredLogs.length)}
+                </strong>{' '}
+                -{' '}
+                <strong className="text-slate-800">
+                  {Math.min(currentPage * ITEMS_PER_PAGE, filteredLogs.length)}
+                </strong>{' '}
+                dari <strong className="text-slate-800">{filteredLogs.length}</strong> transaksi
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition flex items-center gap-1"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Sebelumnya</span>
+                </button>
+                <span className="font-bold text-slate-800 px-2">
+                  Halaman {currentPage} dari {totalPages}
+                </span>
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition flex items-center gap-1"
+                >
+                  <span>Berikutnya</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </div>
 

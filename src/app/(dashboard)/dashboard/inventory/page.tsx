@@ -2,7 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { formatCurrency } from '@/lib/utils';
-import { Boxes, Plus, RefreshCw, AlertTriangle, CheckCircle, ArrowUpDown, Loader2, X } from 'lucide-react';
+import {
+  Boxes,
+  Plus,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle,
+  ArrowUpDown,
+  Loader2,
+  X,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+} from 'lucide-react';
 
 interface RawMaterial {
   id: string;
@@ -17,6 +30,19 @@ interface RawMaterial {
 export default function InventoryPage() {
   const [materials, setMaterials] = useState<RawMaterial[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+
+  // Filters & Pagination
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [unitFilter, setUnitFilter] = useState<string>('ALL');
+  const [sortOption, setSortOption] = useState<string>('NAME_ASC');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const ITEMS_PER_PAGE = 10;
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, unitFilter, sortOption]);
 
   // Modal Add Material State
   const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
@@ -119,6 +145,31 @@ export default function InventoryPage() {
     }
   };
 
+  // Filter & Sort Materials
+  const filteredMaterials = materials
+    .filter((mat) => {
+      const matchesSearch = mat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (mat.category && mat.category.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesStatus =
+        statusFilter === 'ALL' ||
+        (statusFilter === 'LOW_STOCK' && mat.isLowStock) ||
+        (statusFilter === 'NORMAL' && !mat.isLowStock);
+      const matchesUnit = unitFilter === 'ALL' || mat.unit.toUpperCase() === unitFilter.toUpperCase();
+      return matchesSearch && matchesStatus && matchesUnit;
+    })
+    .sort((a, b) => {
+      if (sortOption === 'NAME_ASC') return a.name.localeCompare(b.name);
+      if (sortOption === 'STOCK_ASC') return a.currentStock - b.currentStock;
+      if (sortOption === 'STOCK_DESC') return b.currentStock - a.currentStock;
+      return 0;
+    });
+
+  const totalPages = Math.max(1, Math.ceil(filteredMaterials.length / ITEMS_PER_PAGE));
+  const paginatedMaterials = filteredMaterials.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -157,69 +208,181 @@ export default function InventoryPage() {
         </div>
       )}
 
+      {/* Filter & Search Controls */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+        <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-hide">
+          <span className="text-xs font-semibold text-slate-400 mr-1 flex items-center gap-1">
+            <Filter className="w-3.5 h-3.5" />
+            Status:
+          </span>
+          {[
+            { id: 'ALL', label: 'Semua Stok' },
+            { id: 'LOW_STOCK', label: 'Stok Menipis' },
+            { id: 'NORMAL', label: 'Stok Aman' },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setStatusFilter(item.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+                statusFilter === item.id
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          {/* Unit Filter */}
+          <select
+            value={unitFilter}
+            onChange={(e) => setUnitFilter(e.target.value)}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="ALL">Semua Satuan</option>
+            <option value="GRAM">Satuan: GRAM</option>
+            <option value="ML">Satuan: ML</option>
+            <option value="PCS">Satuan: PCS</option>
+          </select>
+
+          {/* Sort Dropdown */}
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="NAME_ASC">Urut: Nama A-Z</option>
+            <option value="STOCK_ASC">Stok: Terendah</option>
+            <option value="STOCK_DESC">Stok: Terbanyak</option>
+          </select>
+
+          {/* Search Input */}
+          <div className="relative flex-1 sm:w-56">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari nama bahan / kategori..."
+              className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-900 transition"
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Materials Table Card */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-100 font-bold text-xs text-slate-700">
-          Daftar Persediaan Bahan Mentah
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
+        <div className="p-4 border-b border-slate-100 font-bold text-xs text-slate-700 flex items-center justify-between">
+          <span>Daftar Persediaan Bahan Mentah</span>
+          <span className="text-slate-400 font-normal">
+            Total {filteredMaterials.length} bahan (Limit 10 per halaman)
+          </span>
         </div>
 
         {loading ? (
           <div className="p-8 text-center text-xs text-slate-400">Memuat data bahan baku...</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-600">
-              <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
-                <tr>
-                  <th className="p-3.5 pl-5">Nama Bahan</th>
-                  <th className="p-3.5">Kategori</th>
-                  <th className="p-3.5">Satuan (Unit)</th>
-                  <th className="p-3.5">Stok Saat Ini</th>
-                  <th className="p-3.5">Min. Stok</th>
-                  <th className="p-3.5">Status</th>
-                  <th className="p-3.5 pr-5 text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {materials.map((mat) => (
-                  <tr key={mat.id} className="hover:bg-slate-50/80 transition">
-                    <td className="p-3.5 pl-5 font-bold text-slate-900">{mat.name}</td>
-                    <td className="p-3.5 text-slate-500">{mat.category || '-'}</td>
-                    <td className="p-3.5 uppercase font-medium">{mat.unit}</td>
-                    <td className="p-3.5 font-bold text-slate-800">
-                      {mat.currentStock} {mat.unit}
-                    </td>
-                    <td className="p-3.5 text-slate-500">
-                      {mat.minStock} {mat.unit}
-                    </td>
-                    <td className="p-3.5">
-                      {mat.isLowStock ? (
-                        <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                          <AlertTriangle className="w-3 h-3" />
-                          Stok Menipis
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                          Aman
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-3.5 pr-5 text-right">
-                      <button
-                        onClick={() => {
-                          setSelectedMaterial(mat);
-                          setAdjustQty('0');
-                        }}
-                        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] rounded-lg transition flex items-center gap-1 ml-auto"
-                      >
-                        <ArrowUpDown className="w-3 h-3" />
-                        <span>Stok Opname</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        ) : filteredMaterials.length === 0 ? (
+          <div className="p-12 text-center text-xs text-slate-400">
+            <Boxes className="w-12 h-12 text-slate-300 mx-auto mb-2 stroke-1" />
+            <p className="font-bold text-slate-700">Tidak ada bahan baku ditemukan.</p>
+            <p className="text-slate-400 mt-1">Coba sesuaikan kata kunci pencarian atau filter Anda.</p>
           </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-600">
+                <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-100">
+                  <tr>
+                    <th className="p-3.5 pl-5">Nama Bahan</th>
+                    <th className="p-3.5">Kategori</th>
+                    <th className="p-3.5">Satuan (Unit)</th>
+                    <th className="p-3.5">Stok Saat Ini</th>
+                    <th className="p-3.5">Min. Stok</th>
+                    <th className="p-3.5">Status</th>
+                    <th className="p-3.5 pr-5 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {paginatedMaterials.map((mat) => (
+                    <tr key={mat.id} className="hover:bg-slate-50/80 transition">
+                      <td className="p-3.5 pl-5 font-bold text-slate-900">{mat.name}</td>
+                      <td className="p-3.5 text-slate-500">{mat.category || '-'}</td>
+                      <td className="p-3.5 uppercase font-medium">{mat.unit}</td>
+                      <td className="p-3.5 font-bold text-slate-800">
+                        {mat.currentStock} {mat.unit}
+                      </td>
+                      <td className="p-3.5 text-slate-500">
+                        {mat.minStock} {mat.unit}
+                      </td>
+                      <td className="p-3.5">
+                        {mat.isLowStock ? (
+                          <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            <AlertTriangle className="w-3 h-3" />
+                            Stok Menipis
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            Aman
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3.5 pr-5 text-right">
+                        <button
+                          onClick={() => {
+                            setSelectedMaterial(mat);
+                            setAdjustQty('0');
+                          }}
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] rounded-lg transition flex items-center gap-1 ml-auto"
+                        >
+                          <ArrowUpDown className="w-3 h-3" />
+                          <span>Stok Opname</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Footer */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+              <div>
+                Menampilkan{' '}
+                <strong className="text-slate-800">
+                  {Math.min((currentPage - 1) * ITEMS_PER_PAGE + 1, filteredMaterials.length)}
+                </strong>{' '}
+                -{' '}
+                <strong className="text-slate-800">
+                  {Math.min(currentPage * ITEMS_PER_PAGE, filteredMaterials.length)}
+                </strong>{' '}
+                dari <strong className="text-slate-800">{filteredMaterials.length}</strong> bahan
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition flex items-center gap-1"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Sebelumnya</span>
+                </button>
+                <span className="font-bold text-slate-800 px-2">
+                  Halaman {currentPage} dari {totalPages}
+                </span>
+                <button
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:hover:bg-white transition flex items-center gap-1"
+                >
+                  <span>Berikutnya</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </>
         )}
       </div>
 

@@ -91,6 +91,10 @@ export async function getOrders(filter: GetOrdersFilter = {}) {
   // Calculate summary metrics
   const totalOrders = formattedOrders.length;
   const totalSales = formattedOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+  const totalItems = formattedOrders.reduce(
+    (sum, order) => sum + order.items.reduce((itemSum, item) => itemSum + item.qty, 0),
+    0
+  );
   const cashCount = formattedOrders.filter((o) => o.paymentMethod === 'CASH').length;
   const qrisCount = formattedOrders.filter((o) => o.paymentMethod === 'QRIS').length;
   const transferCount = formattedOrders.filter((o) => o.paymentMethod === 'TRANSFER').length;
@@ -100,6 +104,7 @@ export async function getOrders(filter: GetOrdersFilter = {}) {
     summary: {
       totalOrders,
       totalSales,
+      totalItems,
       cashCount,
       qrisCount,
       transferCount,

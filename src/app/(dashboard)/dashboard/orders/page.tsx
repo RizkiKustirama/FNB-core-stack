@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowUpDown,
+  UtensilsCrossed,
 } from 'lucide-react';
 
 interface OrderItem {
@@ -59,6 +60,7 @@ interface Order {
 interface OrderSummary {
   totalOrders: number;
   totalSales: number;
+  totalItems: number;
   cashCount: number;
   qrisCount: number;
   transferCount: number;
@@ -70,6 +72,7 @@ export default function OrdersRecapPage() {
   const [summary, setSummary] = useState<OrderSummary>({
     totalOrders: 0,
     totalSales: 0,
+    totalItems: 0,
     cashCount: 0,
     qrisCount: 0,
     transferCount: 0,
@@ -131,6 +134,7 @@ export default function OrdersRecapPage() {
       if (startDateStr) params.set('startDate', startDateStr);
       if (endDateStr) params.set('endDate', endDateStr);
       if (paymentFilter !== 'ALL') params.set('paymentMethod', paymentFilter);
+      if (statusFilter !== 'ALL') params.set('status', statusFilter);
       if (searchQuery.trim()) params.set('search', searchQuery.trim());
 
       const res = await fetch(`/api/v1/orders?${params.toString()}`);
@@ -142,6 +146,7 @@ export default function OrdersRecapPage() {
           data.data.summary || {
             totalOrders: 0,
             totalSales: 0,
+            totalItems: 0,
             cashCount: 0,
             qrisCount: 0,
             transferCount: 0,
@@ -158,7 +163,7 @@ export default function OrdersRecapPage() {
 
   useEffect(() => {
     fetchOrdersData();
-  }, [dateFilter, paymentFilter]);
+  }, [dateFilter, paymentFilter, statusFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,7 +216,7 @@ export default function OrdersRecapPage() {
       </div>
 
       {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {/* Card 1: Total Omzet */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
           <div className="p-3 bg-blue-50 text-blue-600 rounded-xl shrink-0">
@@ -242,7 +247,22 @@ export default function OrdersRecapPage() {
           </div>
         </div>
 
-        {/* Card 3: Rata-Rata Per Order */}
+        {/* Card 3: Total Item Checkout */}
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
+          <div className="p-3 bg-amber-50 text-amber-600 rounded-xl shrink-0">
+            <UtensilsCrossed className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+              Total Item Checkout
+            </span>
+            <div className="text-xl font-black text-slate-900 mt-0.5">
+              {summary.totalItems} <span className="text-xs font-normal text-slate-500">Porsi / Item</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Rata-Rata Per Order */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
           <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl shrink-0">
             <Receipt className="w-6 h-6" />
@@ -257,7 +277,7 @@ export default function OrdersRecapPage() {
           </div>
         </div>
 
-        {/* Card 4: Metode Bayar Breakdown */}
+        {/* Card 5: Metode Bayar Breakdown */}
         <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-center space-y-1.5">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             Distribusi Pembayaran

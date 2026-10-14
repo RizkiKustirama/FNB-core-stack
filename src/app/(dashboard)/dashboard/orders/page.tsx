@@ -218,90 +218,122 @@ export default function OrdersRecapPage() {
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {/* Card 1: Total Omzet */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-xl shrink-0">
-            <TrendingUp className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between min-w-0 overflow-hidden">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">
               Total Omzet Masuk
             </span>
-            <div className="text-xl font-black text-slate-900 mt-0.5">
+            <div className="p-2 bg-blue-50 text-blue-600 rounded-xl shrink-0">
+              <TrendingUp className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-2 min-w-0">
+            <div
+              className="text-base sm:text-lg xl:text-xl font-black text-slate-900 tracking-tight truncate"
+              title={formatCurrency(summary.totalSales)}
+            >
               {formatCurrency(summary.totalSales)}
             </div>
           </div>
         </div>
 
         {/* Card 2: Total Pesanan */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
-            <ShoppingBag className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-              Total Pesanan (Order)
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between min-w-0 overflow-hidden">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">
+              Total Pesanan
             </span>
-            <div className="text-xl font-black text-slate-900 mt-0.5">
-              {summary.totalOrders} <span className="text-xs font-normal text-slate-500">Transaksi</span>
+            <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl shrink-0">
+              <ShoppingBag className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-2 min-w-0">
+            <div className="flex items-baseline gap-1.5 min-w-0">
+              <span className="text-base sm:text-lg xl:text-xl font-black text-slate-900 tracking-tight truncate">
+                {summary.totalOrders.toLocaleString('id-ID')}
+              </span>
+              <span className="text-xs font-normal text-slate-500 shrink-0">
+                Transaksi
+              </span>
             </div>
           </div>
         </div>
 
         {/* Card 3: Total Item Checkout */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-amber-50 text-amber-600 rounded-xl shrink-0">
-            <UtensilsCrossed className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between min-w-0 overflow-hidden">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">
               Total Item Checkout
             </span>
-            <div className="text-xl font-black text-slate-900 mt-0.5">
-              {summary.totalItems} <span className="text-xs font-normal text-slate-500">Porsi / Item</span>
+            <div className="p-2 bg-amber-50 text-amber-600 rounded-xl shrink-0">
+              <UtensilsCrossed className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-2 min-w-0">
+            <div className="flex items-baseline gap-1.5 min-w-0">
+              <span className="text-base sm:text-lg xl:text-xl font-black text-slate-900 tracking-tight truncate">
+                {summary.totalItems.toLocaleString('id-ID')}
+              </span>
+              <span className="text-xs font-normal text-slate-500 shrink-0">
+                Porsi / Item
+              </span>
             </div>
           </div>
         </div>
 
         {/* Card 4: Rata-Rata Per Order */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl shrink-0">
-            <Receipt className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-              Rata-Rata Order (AOV)
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between min-w-0 overflow-hidden">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">
+              Rata-Rata (AOV)
             </span>
-            <div className="text-xl font-black text-slate-900 mt-0.5">
+            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl shrink-0">
+              <Receipt className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-2 min-w-0">
+            <div
+              className="text-base sm:text-lg xl:text-xl font-black text-slate-900 tracking-tight truncate"
+              title={formatCurrency(summary.averageOrderValue)}
+            >
               {formatCurrency(summary.averageOrderValue)}
             </div>
           </div>
         </div>
 
         {/* Card 5: Metode Bayar Breakdown */}
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-center space-y-1.5">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-            Distribusi Pembayaran
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between min-w-0 overflow-hidden">
+          <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">
+            Distribusi Bayar
           </span>
-          <div className="flex items-center justify-between text-xs font-semibold">
-            <span className="flex items-center gap-1.5 text-slate-600">
-              <Banknote className="w-3.5 h-3.5 text-emerald-600" />
-              Tunai
-            </span>
-            <span className="font-bold text-slate-900">{summary.cashCount}</span>
-          </div>
-          <div className="flex items-center justify-between text-xs font-semibold">
-            <span className="flex items-center gap-1.5 text-slate-600">
-              <QrCode className="w-3.5 h-3.5 text-blue-600" />
-              QRIS
-            </span>
-            <span className="font-bold text-slate-900">{summary.qrisCount}</span>
-          </div>
-          <div className="flex items-center justify-between text-xs font-semibold">
-            <span className="flex items-center gap-1.5 text-slate-600">
-              <Building2 className="w-3.5 h-3.5 text-indigo-600" />
-              Transfer
-            </span>
-            <span className="font-bold text-slate-900">{summary.transferCount}</span>
+          <div className="space-y-1 mt-2 text-xs font-semibold min-w-0">
+            <div className="flex items-center justify-between gap-1">
+              <span className="flex items-center gap-1.5 text-slate-600 truncate min-w-0">
+                <Banknote className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span className="truncate">Tunai</span>
+              </span>
+              <span className="font-bold text-slate-900 shrink-0 ml-1">
+                {summary.cashCount}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-1">
+              <span className="flex items-center gap-1.5 text-slate-600 truncate min-w-0">
+                <QrCode className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span className="truncate">QRIS</span>
+              </span>
+              <span className="font-bold text-slate-900 shrink-0 ml-1">
+                {summary.qrisCount}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-1">
+              <span className="flex items-center gap-1.5 text-slate-600 truncate min-w-0">
+                <Building2 className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                <span className="truncate">Transfer</span>
+              </span>
+              <span className="font-bold text-slate-900 shrink-0 ml-1">
+                {summary.transferCount}
+              </span>
+            </div>
           </div>
         </div>
       </div>

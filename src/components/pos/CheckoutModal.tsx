@@ -36,6 +36,8 @@ export function CheckoutModal({ isOpen, onClose, onSuccess }: CheckoutModalProps
         cashReceived: paymentMethod === 'CASH' ? numCashReceived : grandTotal,
         items: items.map((item) => ({
           productId: item.productId,
+          productLevelId: item.productLevelId || undefined,
+          levelName: item.levelName || undefined,
           qty: item.qty,
           price: item.price,
           note: item.note || undefined,

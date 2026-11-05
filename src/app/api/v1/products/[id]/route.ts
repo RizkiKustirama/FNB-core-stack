@@ -5,7 +5,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   try {
     const { id } = await params;
     const body = await req.json();
-    const { name, price, categoryId, imageUrl, isActive, recipes } = body;
+    const { name, price, categoryId, imageUrl, isActive, hasLevels, levels, recipes } = body;
 
     if (!name || price === undefined || !categoryId) {
       return NextResponse.json(
@@ -20,6 +20,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       categoryId,
       imageUrl,
       isActive: Boolean(isActive),
+      hasLevels: Boolean(hasLevels),
+      levels: Array.isArray(levels) ? levels : [],
       recipes: Array.isArray(recipes) ? recipes : [],
     });
 

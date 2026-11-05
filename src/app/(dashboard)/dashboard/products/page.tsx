@@ -21,6 +21,8 @@ import {
   ChevronRight,
   ArrowUpDown,
   Filter,
+  Flame,
+  Sparkles,
 } from 'lucide-react';
 
 interface Category {
@@ -39,6 +41,15 @@ interface RecipeItemInput {
   quantityNeeded: number;
 }
 
+interface ProductLevel {
+  id?: string;
+  productId?: string;
+  level: number;
+  name: string;
+  price: number;
+  sortOrder: number;
+}
+
 interface Product {
   id: string;
   name: string;
@@ -46,6 +57,8 @@ interface Product {
   imageUrl?: string | null;
   isActive: boolean;
   categoryId: string;
+  hasLevels?: boolean;
+  levels?: ProductLevel[];
   category: { id: string; name: string };
   recipes: {
     id: string;
@@ -53,6 +66,12 @@ interface Product {
     quantityNeeded: number;
     rawMaterial: { id: string; name: string; unit: string };
   }[];
+}
+
+interface LevelRowInput {
+  level: number;
+  name: string;
+  price: string;
 }
 
 export default function ProductsPage() {
@@ -75,7 +94,13 @@ export default function ProductsPage() {
     categoryId: '',
     imageUrl: '',
     isActive: true,
+    hasLevels: false,
   });
+  const [levelInputs, setLevelInputs] = useState<LevelRowInput[]>([]);
+  const [genMinLevel, setGenMinLevel] = useState<number>(0);
+  const [genMaxLevel, setGenMaxLevel] = useState<number>(8);
+  const [genBasePrice, setGenBasePrice] = useState<string>('12000');
+
   const [recipeInputs, setRecipeInputs] = useState<RecipeItemInput[]>([]);
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
   const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
@@ -120,7 +145,12 @@ export default function ProductsPage() {
       categoryId: categories[0]?.id || '',
       imageUrl: '',
       isActive: true,
+      hasLevels: false,
     });
+    setLevelInputs([]);
+    setGenMinLevel(0);
+    setGenMaxLevel(8);
+    setGenBasePrice('12000');
     setRecipeInputs([]);
     setFormError('');
     setIsFormOpen(true);
@@ -134,7 +164,22 @@ export default function ProductsPage() {
       categoryId: prod.categoryId,
       imageUrl: prod.imageUrl || '',
       isActive: prod.isActive,
+      hasLevels: Boolean(prod.hasLevels),
     });
+    if (prod.hasLevels && prod.levels && prod.levels.length > 0) {
+      setLevelInputs(
+        prod.levels.map((l) => ({
+          level: l.level,
+          name: l.name,
+          price: String(l.price),
+        }))
+      );
+    } else {
+      setLevelInputs([]);
+    }
+    setGenMinLevel(0);
+    setGenMaxLevel(8);
+    setGenBasePrice(String(prod.price || '12000'));
     setRecipeInputs(
       prod.recipes.map((r) => ({
         rawMaterialId: r.rawMaterialId,
@@ -143,6 +188,45 @@ export default function ProductsPage() {
     );
     setFormError('');
     setIsFormOpen(true);
+  };
+
+  // Quick generator for levels
+  const handleGenerateLevels = () => {
+    const min = Math.min(genMinLevel, genMaxLevel);
+    const max = Math.max(genMinLevel, genMaxLevel);
+    const newLevels: LevelRowInput[] = [];
+    const defaultP = genBasePrice || formData.price || '12000';
+    for (let i = min; i <= max; i++) {
+      newLevels.push({
+        level: i,
+        name: i === 0 ? 'Level 0 (Original)' : `Level ${i}`,
+        price: defaultP,
+      });
+    }
+    setLevelInputs(newLevels);
+  };
+
+  const addSingleLevel = () => {
+    const nextLevel =
+      levelInputs.length > 0 ? Math.max(...levelInputs.map((l) => l.level)) + 1 : 1;
+    setLevelInputs((prev) => [
+      ...prev,
+      {
+        level: nextLevel,
+        name: `Level ${nextLevel}`,
+        price: genBasePrice || formData.price || '0',
+      },
+    ]);
+  };
+
+  const removeLevelRow = (index: number) => {
+    setLevelInputs((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateLevelRow = (index: number, field: keyof LevelRowInput, value: any) => {
+    setLevelInputs((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+    );
   };
 
   // Image Upload Handler
@@ -223,23 +307,51 @@ export default function ProductsPage() {
       setFormError('Nama menu wajib diisi');
       return;
     }
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      setFormError('Harga jual harus lebih dari 0');
-      return;
-    }
     if (!formData.categoryId) {
       setFormError('Pilih kategori menu');
       return;
     }
 
+    if (formData.hasLevels) {
+      if (levelInputs.length === 0) {
+        setFormError('Sistem level aktif: Harap tambahkan minimal 1 varian level.');
+        return;
+      }
+      for (const lvl of levelInputs) {
+        const p = parseFloat(lvl.price);
+        if (isNaN(p) || p <= 0) {
+          setFormError(`Harga untuk ${lvl.name || `Level ${lvl.level}`} harus lebih dari 0`);
+          return;
+        }
+      }
+    } else {
+      if (!formData.price || parseFloat(formData.price) <= 0) {
+        setFormError('Harga jual harus lebih dari 0');
+        return;
+      }
+    }
+
     try {
       setFormSubmitting(true);
+      const basePrice = formData.hasLevels
+        ? Math.min(...levelInputs.map((l) => parseFloat(l.price) || 0))
+        : parseFloat(formData.price);
+
       const payload = {
         name: formData.name.trim(),
-        price: parseFloat(formData.price),
+        price: basePrice,
         categoryId: formData.categoryId,
         imageUrl: formData.imageUrl || null,
         isActive: formData.isActive,
+        hasLevels: formData.hasLevels,
+        levels: formData.hasLevels
+          ? levelInputs.map((l, idx) => ({
+              level: Number(l.level),
+              name: l.name.trim() || `Level ${l.level}`,
+              price: parseFloat(l.price) || 0,
+              sortOrder: idx,
+            }))
+          : [],
         recipes: recipeInputs.map((r) => ({
           rawMaterialId: r.rawMaterialId,
           quantityNeeded: Number(r.quantityNeeded),
@@ -492,8 +604,33 @@ export default function ProductsPage() {
                           {prod.category.name}
                         </span>
                       </td>
-                      <td className="p-3.5 font-bold text-blue-600">
-                        {formatCurrency(prod.price)}
+                      <td className="p-3.5">
+                        {prod.hasLevels && prod.levels && prod.levels.length > 0 ? (
+                          <div className="space-y-1">
+                            <div className="font-bold text-blue-600">
+                              {(() => {
+                                const prices = prod.levels.map((l) => l.price);
+                                const minP = Math.min(...prices);
+                                const maxP = Math.max(...prices);
+                                return minP === maxP
+                                  ? formatCurrency(minP)
+                                  : `${formatCurrency(minP)} - ${formatCurrency(maxP)}`;
+                              })()}
+                            </div>
+                            <div className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200/80 px-2 py-0.5 rounded-md text-[10px] font-bold">
+                              <Flame className="w-3 h-3 text-amber-500" />
+                              <span>
+                                {prod.levels.length} Level (Lvl{' '}
+                                {Math.min(...prod.levels.map((l) => l.level))} -{' '}
+                                {Math.max(...prod.levels.map((l) => l.level))})
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="font-bold text-blue-600">
+                            {formatCurrency(prod.price)}
+                          </span>
+                        )}
                       </td>
                       <td className="p-3.5">
                         <button
@@ -601,6 +738,26 @@ export default function ProductsPage() {
               </button>
             </div>
 
+            {selectedProductView.hasLevels && selectedProductView.levels && selectedProductView.levels.length > 0 && (
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <Flame className="w-3.5 h-3.5 text-amber-500" />
+                  Daftar Level & Harga Jual:
+                </span>
+                <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                  {selectedProductView.levels.map((lvl) => (
+                    <div
+                      key={lvl.level}
+                      className="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-medium"
+                    >
+                      <span className="font-bold text-slate-800">{lvl.name}</span>
+                      <span className="text-blue-600 font-bold">{formatCurrency(lvl.price)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <span className="text-xs font-bold text-slate-700">Komponen Bahan Baku Per Porsi:</span>
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
@@ -679,21 +836,8 @@ export default function ProductsPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Harga Jual (Rp) <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    placeholder="25000"
-                    className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
-                    required
-                  />
-                </div>
-
-                <div>
+                {/* Kategori Menu */}
+                <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Kategori Menu <span className="text-rose-500">*</span>
                   </label>
@@ -745,6 +889,196 @@ export default function ProductsPage() {
                     </div>
                   )}
                 </div>
+
+                {/* Level System Switch Toggle Card */}
+                <div className="sm:col-span-2 bg-gradient-to-r from-amber-50/70 to-orange-50/40 p-3.5 rounded-2xl border border-amber-200/80 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-xs">
+                        <Flame className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900">
+                          Sistem Level Kepedasan / Varian Level
+                        </h4>
+                        <p className="text-[11px] text-slate-500">
+                          Aktifkan bila menu memiliki pilihan level dengan variasi harga independen (misal: Level 0 - 8).
+                        </p>
+                      </div>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.hasLevels}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setFormData((prev) => ({ ...prev, hasLevels: checked }));
+                          if (checked && levelInputs.length === 0) {
+                            const min = 0;
+                            const max = 8;
+                            const initial: LevelRowInput[] = [];
+                            const defaultP = formData.price || '12000';
+                            for (let i = min; i <= max; i++) {
+                              initial.push({
+                                level: i,
+                                name: i === 0 ? 'Level 0 (Original)' : `Level ${i}`,
+                                price: defaultP,
+                              });
+                            }
+                            setLevelInputs(initial);
+                          }
+                        }}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* If Level Toggle is OFF: Standard Single Price */}
+                {!formData.hasLevels ? (
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Harga Jual (Rp) <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      placeholder="25000"
+                      className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                      required={!formData.hasLevels}
+                    />
+                  </div>
+                ) : (
+                  /* If Level Toggle is ON: Level Configuration & Independent Pricing */
+                  <div className="sm:col-span-2 space-y-3 pt-1">
+                    {/* Quick Generator Bar */}
+                    <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3.5 space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-200/60 pb-2.5">
+                        <div>
+                          <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                            Quick Level Generator
+                          </span>
+                          <p className="text-[10px] text-amber-700">
+                            Generate baris level otomatis lalu sesuaikan harga masing-masing di bawah.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleGenerateLevels}
+                          className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs transition shrink-0 flex items-center gap-1 self-start sm:self-auto"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          <span>Generate Baris</span>
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        <div>
+                          <label className="block text-[10px] font-bold text-amber-900 mb-0.5">Dari Level</label>
+                          <input
+                            type="number"
+                            value={genMinLevel}
+                            onChange={(e) => setGenMinLevel(parseInt(e.target.value) || 0)}
+                            className="w-full px-2.5 py-1 bg-white border border-amber-300 rounded-lg text-xs font-bold text-slate-800 text-center"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-amber-900 mb-0.5">Sampai Level</label>
+                          <input
+                            type="number"
+                            value={genMaxLevel}
+                            onChange={(e) => setGenMaxLevel(parseInt(e.target.value) || 0)}
+                            className="w-full px-2.5 py-1 bg-white border border-amber-300 rounded-lg text-xs font-bold text-slate-800 text-center"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-amber-900 mb-0.5">Harga Dasar (Rp)</label>
+                          <input
+                            type="number"
+                            value={genBasePrice}
+                            onChange={(e) => setGenBasePrice(e.target.value)}
+                            placeholder="12000"
+                            className="w-full px-2.5 py-1 bg-white border border-amber-300 rounded-lg text-xs font-bold text-slate-800 text-center"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Table of Level Rows */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <Flame className="w-3.5 h-3.5 text-amber-500" />
+                          Daftar Level & Harga Jual Independen ({levelInputs.length} Level)
+                        </label>
+                        <button
+                          type="button"
+                          onClick={addSingleLevel}
+                          className="text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                        >
+                          <Plus className="w-3 h-3" />
+                          <span>Tambah 1 Baris</span>
+                        </button>
+                      </div>
+
+                      <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1">
+                        {levelInputs.length === 0 ? (
+                          <div className="p-4 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                            Belum ada baris level. Klik &quot;Generate Baris&quot; di atas atau &quot;Tambah 1 Baris&quot;.
+                          </div>
+                        ) : (
+                          levelInputs.map((row, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 hover:border-amber-300 transition"
+                            >
+                              <div className="w-16">
+                                <span className="block text-[9px] font-bold text-slate-400">Level</span>
+                                <input
+                                  type="number"
+                                  value={row.level}
+                                  onChange={(e) => updateLevelRow(idx, 'level', parseInt(e.target.value) || 0)}
+                                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-center"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <span className="block text-[9px] font-bold text-slate-400">Label Tampilan POS</span>
+                                <input
+                                  type="text"
+                                  value={row.name}
+                                  onChange={(e) => updateLevelRow(idx, 'name', e.target.value)}
+                                  placeholder="Misal: Level 1"
+                                  className="w-full px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-medium"
+                                />
+                              </div>
+                              <div className="w-28 sm:w-32">
+                                <span className="block text-[9px] font-bold text-slate-400">Harga (Rp)</span>
+                                <input
+                                  type="number"
+                                  value={row.price}
+                                  onChange={(e) => updateLevelRow(idx, 'price', e.target.value)}
+                                  placeholder="12000"
+                                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-blue-600 text-right"
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeLevelRow(idx)}
+                                className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition mt-3"
+                                title="Hapus Level"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Display Image Upload Setup */}

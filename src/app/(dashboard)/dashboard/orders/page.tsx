@@ -33,6 +33,13 @@ interface OrderItem {
   price: number;
   subtotal: number;
   note?: string | null;
+  productLevelId?: string | null;
+  levelName?: string | null;
+  productLevel?: {
+    id: string;
+    level: number;
+    name: string;
+  } | null;
   product?: {
     id: string;
     name: string;
@@ -607,7 +614,14 @@ export default function OrdersRecapPage() {
                     className="p-2.5 bg-white rounded-lg border border-slate-200/80 shadow-xs space-y-1"
                   >
                     <div className="flex justify-between items-center text-xs font-bold text-slate-900">
-                      <span>{item.product?.name || 'Menu'}</span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span>{item.product?.name || 'Menu'}</span>
+                        {item.levelName && (
+                          <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-1.5 py-0.2 rounded border border-amber-300">
+                            🔥 {item.levelName}
+                          </span>
+                        )}
+                      </div>
                       <span>{formatCurrency(item.subtotal)}</span>
                     </div>
                     <div className="flex justify-between items-center text-[11px] text-slate-500">

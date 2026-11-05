@@ -6,6 +6,8 @@ export interface CheckoutInput {
   cashReceived?: number;
   items: {
     productId: string;
+    productLevelId?: string;
+    levelName?: string;
     qty: number;
     price: number;
     note?: string;
@@ -59,6 +61,8 @@ export async function processCheckout(input: CheckoutInput) {
           items: {
             create: input.items.map((item) => ({
               productId: item.productId,
+              productLevelId: item.productLevelId || null,
+              levelName: item.levelName || null,
               qty: item.qty,
               price: item.price,
               subtotal: item.price * item.qty,
@@ -70,6 +74,7 @@ export async function processCheckout(input: CheckoutInput) {
           items: {
             include: {
               product: true,
+              productLevel: true,
             },
           },
           cashier: {

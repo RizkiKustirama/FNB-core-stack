@@ -1,7 +1,10 @@
 import { create } from 'zustand';
 
 export interface CartItem {
+  cartItemId: string; // `${productId}_${productLevelId || 'REGULAR'}`
   productId: string;
+  productLevelId?: string | null;
+  levelName?: string | null;
   name: string;
   price: number;
   qty: number;
@@ -12,10 +15,20 @@ export interface CartItem {
 interface CartStore {
   items: CartItem[];
   taxRate: number; // e.g. 0.1 for 10%
-  addItem: (product: { id: string; name: string; price: number; imageUrl?: string | null }, note?: string) => void;
-  removeItem: (productId: string) => void;
-  updateQty: (productId: string, qty: number) => void;
-  updateNote: (productId: string, note: string) => void;
+  addItem: (
+    product: {
+      id: string;
+      name: string;
+      price: number;
+      imageUrl?: string | null;
+      productLevelId?: string | null;
+      levelName?: string | null;
+    },
+    note?: string
+  ) => void;
+  removeItem: (cartItemId: string) => void;
+  updateQty: (cartItemId: string, qty: number) => void;
+  updateNote: (cartItemId: string, note: string) => void;
   clearCart: () => void;
   getSubtotal: () => number;
   getTaxAmount: () => number;
@@ -28,7 +41,9 @@ export const useCartStore = create<CartStore>((set, get) => ({
 
   addItem: (product, note = '') => {
     const currentItems = get().items;
-    const existingIndex = currentItems.findIndex((item) => item.productId === product.id);
+    const levelId = product.productLevelId || null;
+    const cartItemId = `${product.id}_${levelId || 'REGULAR'}`;
+    const existingIndex = currentItems.findIndex((item) => item.cartItemId === cartItemId);
 
     if (existingIndex > -1) {
       const updated = [...currentItems];
@@ -43,7 +58,10 @@ export const useCartStore = create<CartStore>((set, get) => ({
         items: [
           ...currentItems,
           {
+            cartItemId,
             productId: product.id,
+            productLevelId: levelId,
+            levelName: product.levelName || null,
             name: product.name,
             price: product.price,
             qty: 1,
@@ -55,26 +73,34 @@ export const useCartStore = create<CartStore>((set, get) => ({
     }
   },
 
-  removeItem: (productId) => {
-    set({ items: get().items.filter((item) => item.productId !== productId) });
-  },
-
-  updateQty: (productId, qty) => {
-    if (qty <= 0) {
-      get().removeItem(productId);
-      return;
-    }
+  removeItem: (cartItemId) => {
     set({
-      items: get().items.map((item) =>
-        item.productId === productId ? { ...item, qty } : item
+      items: get().items.filter(
+        (item) => item.cartItemId !== cartItemId && item.productId !== cartItemId
       ),
     });
   },
 
-  updateNote: (productId, note) => {
+  updateQty: (cartItemId, qty) => {
+    if (qty <= 0) {
+      get().removeItem(cartItemId);
+      return;
+    }
     set({
       items: get().items.map((item) =>
-        item.productId === productId ? { ...item, note } : item
+        item.cartItemId === cartItemId || item.productId === cartItemId
+          ? { ...item, qty }
+          : item
+      ),
+    });
+  },
+
+  updateNote: (cartItemId, note) => {
+    set({
+      items: get().items.map((item) =>
+        item.cartItemId === cartItemId || item.productId === cartItemId
+          ? { ...item, note }
+          : item
       ),
     });
   },

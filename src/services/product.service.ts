@@ -8,6 +8,9 @@ export async function getProducts(categoryId?: string, activeOnly: boolean = fal
     },
     include: {
       category: true,
+      levels: {
+        orderBy: { level: 'asc' },
+      },
       recipes: {
         include: {
           rawMaterial: true,
@@ -20,6 +23,10 @@ export async function getProducts(categoryId?: string, activeOnly: boolean = fal
   return products.map((prod) => ({
     ...prod,
     price: Number(prod.price),
+    levels: (prod.levels || []).map((l) => ({
+      ...l,
+      price: Number(l.price),
+    })),
     recipes: prod.recipes.map((r) => ({
       ...r,
       quantityNeeded: Number(r.quantityNeeded),
@@ -49,17 +56,35 @@ export interface RecipeInput {
   quantityNeeded: number;
 }
 
+export interface ProductLevelInput {
+  id?: string;
+  level: number;
+  name: string;
+  price: number;
+}
+
 export interface CreateProductInput {
   name: string;
   price: number;
   categoryId: string;
   imageUrl?: string | null;
   isActive?: boolean;
+  hasLevels?: boolean;
+  levels?: ProductLevelInput[];
   recipes?: RecipeInput[];
 }
 
 export async function createProduct(input: CreateProductInput) {
-  const { name, price, categoryId, imageUrl, isActive = true, recipes = [] } = input;
+  const {
+    name,
+    price,
+    categoryId,
+    imageUrl,
+    isActive = true,
+    hasLevels = false,
+    levels = [],
+    recipes = [],
+  } = input;
 
   return await prisma.product.create({
     data: {
@@ -68,6 +93,18 @@ export async function createProduct(input: CreateProductInput) {
       categoryId,
       imageUrl: imageUrl || null,
       isActive,
+      hasLevels: Boolean(hasLevels),
+      levels:
+        hasLevels && levels.length > 0
+          ? {
+              create: levels.map((lvl) => ({
+                level: Number(lvl.level),
+                name: lvl.name,
+                price: Number(lvl.price),
+                sortOrder: Number(lvl.level),
+              })),
+            }
+          : undefined,
       recipes: {
         create: recipes.map((r) => ({
           rawMaterialId: r.rawMaterialId,
@@ -77,6 +114,9 @@ export async function createProduct(input: CreateProductInput) {
     },
     include: {
       category: true,
+      levels: {
+        orderBy: { level: 'asc' },
+      },
       recipes: {
         include: {
           rawMaterial: true,
@@ -87,16 +127,28 @@ export async function createProduct(input: CreateProductInput) {
 }
 
 export async function updateProduct(id: string, input: CreateProductInput) {
-  const { name, price, categoryId, imageUrl, isActive, recipes = [] } = input;
+  const {
+    name,
+    price,
+    categoryId,
+    imageUrl,
+    isActive,
+    hasLevels = false,
+    levels = [],
+    recipes = [],
+  } = input;
 
-  // Use transaction to update product details and replace recipe items atomically
+  // Use transaction to update product details, levels, and recipe items atomically
   return await prisma.$transaction(async (tx) => {
-    // Delete existing recipe items for this product
+    // Delete existing recipe items & levels for this product
     await tx.recipeItem.deleteMany({
       where: { productId: id },
     });
+    await tx.productLevel.deleteMany({
+      where: { productId: id },
+    });
 
-    // Update product and re-create recipe items
+    // Update product and re-create levels & recipes
     const updated = await tx.product.update({
       where: { id },
       data: {
@@ -105,6 +157,18 @@ export async function updateProduct(id: string, input: CreateProductInput) {
         categoryId,
         imageUrl: imageUrl !== undefined ? imageUrl : undefined,
         isActive: isActive !== undefined ? isActive : true,
+        hasLevels: Boolean(hasLevels),
+        levels:
+          hasLevels && levels.length > 0
+            ? {
+                create: levels.map((lvl) => ({
+                  level: Number(lvl.level),
+                  name: lvl.name,
+                  price: Number(lvl.price),
+                  sortOrder: Number(lvl.level),
+                })),
+              }
+            : undefined,
         recipes: {
           create: recipes.map((r) => ({
             rawMaterialId: r.rawMaterialId,
@@ -114,6 +178,9 @@ export async function updateProduct(id: string, input: CreateProductInput) {
       },
       include: {
         category: true,
+        levels: {
+          orderBy: { level: 'asc' },
+        },
         recipes: {
           include: {
             rawMaterial: true,

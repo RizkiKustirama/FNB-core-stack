@@ -69,6 +69,7 @@ export async function getOrders(filter: GetOrdersFilter = {}) {
               imageUrl: true,
             },
           },
+          productLevel: true,
         },
       },
     },
@@ -128,6 +129,7 @@ export async function getOrderDetail(id: string) {
       items: {
         include: {
           product: true,
+          productLevel: true,
         },
       },
     },

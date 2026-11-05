@@ -98,69 +98,79 @@ export function CartSidebar({ onOpenCheckout, isMobileDrawer, onCloseMobile }: C
             </p>
           </div>
         ) : (
-          items.map((item) => (
-            <div
-              key={item.productId}
-              className="p-3 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-2.5 hover:border-blue-300 transition"
-            >
-              {/* Item Card Top Row */}
-              <div className="flex gap-3 items-center">
-                {/* Thumbnail photo (rounded square) */}
-                <div className="w-14 h-14 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
-                  {item.imageUrl ? (
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <Utensils className="w-6 h-6 text-slate-300" />
-                  )}
-                </div>
+          items.map((item) => {
+            const itemKey = item.cartItemId || item.productId;
+            return (
+              <div
+                key={itemKey}
+                className="p-3 bg-slate-50/90 rounded-2xl border border-slate-200/80 space-y-2.5 hover:border-blue-300 transition"
+              >
+                {/* Item Card Top Row */}
+                <div className="flex gap-3 items-center">
+                  {/* Thumbnail photo (rounded square) */}
+                  <div className="w-14 h-14 rounded-xl bg-white border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-xs">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Utensils className="w-6 h-6 text-slate-300" />
+                    )}
+                  </div>
 
-                {/* Menu Details & Price */}
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-xs font-bold text-slate-800 leading-tight truncate">
-                    {item.name}
-                  </h4>
-                  <div className="text-xs font-bold text-blue-600 mt-0.5">
-                    {formatCurrency(item.price * item.qty)}
+                  {/* Menu Details & Price */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h4 className="text-xs font-bold text-slate-800 leading-tight truncate">
+                        {item.name}
+                      </h4>
+                      {item.levelName && (
+                        <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-1.5 py-0.2 rounded border border-amber-300 shrink-0">
+                          🔥 {item.levelName}
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs font-bold text-blue-600 mt-0.5">
+                      {formatCurrency(item.price * item.qty)}
+                    </div>
+                  </div>
+
+                  {/* Quantity Stepper (- 1 +) */}
+                  <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg p-0.5 shadow-xs shrink-0">
+                    <button
+                      onClick={() => updateQty(itemKey, item.qty - 1)}
+                      className="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 transition"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <span className="text-xs font-bold text-slate-800 px-1.5 min-w-[18px] text-center">
+                      {item.qty}
+                    </span>
+                    <button
+                      onClick={() => updateQty(itemKey, item.qty + 1)}
+                      className="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 transition"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
                   </div>
                 </div>
 
-                {/* Quantity Stepper (- 1 +) */}
-                <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg p-0.5 shadow-xs shrink-0">
-                  <button
-                    onClick={() => updateQty(item.productId, item.qty - 1)}
-                    className="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 transition"
-                  >
-                    <Minus className="w-3 h-3" />
-                  </button>
-                  <span className="text-xs font-bold text-slate-800 px-1.5 min-w-[18px] text-center">
-                    {item.qty}
-                  </span>
-                  <button
-                    onClick={() => updateQty(item.productId, item.qty + 1)}
-                    className="w-6 h-6 rounded flex items-center justify-center text-slate-600 hover:bg-slate-100 transition"
-                  >
-                    <Plus className="w-3 h-3" />
-                  </button>
+                {/* Sub-notes Input */}
+                <div className="flex items-center gap-1.5">
+                  <Edit3 className="w-3 h-3 text-slate-400 shrink-0" />
+                  <input
+                    type="text"
+                    value={item.note || ''}
+                    onChange={(e) => updateNote(itemKey, e.target.value)}
+                    placeholder="Catatan pesanan (misal: Pedas)..."
+                    className="w-full text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  />
                 </div>
               </div>
-
-              {/* Sub-notes Input */}
-              <div className="flex items-center gap-1.5">
-                <Edit3 className="w-3 h-3 text-slate-400 shrink-0" />
-                <input
-                  type="text"
-                  value={item.note || ''}
-                  onChange={(e) => updateNote(item.productId, e.target.value)}
-                  placeholder="Catatan pesanan (misal: Pedas)..."
-                  className="w-full text-[11px] bg-white border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400"
-                />
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 

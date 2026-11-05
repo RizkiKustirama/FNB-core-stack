@@ -21,7 +21,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, price, categoryId, imageUrl, isActive, recipes } = body;
+    const { name, price, categoryId, imageUrl, isActive, hasLevels, levels, recipes } = body;
 
     if (!name || price === undefined || !categoryId) {
       return NextResponse.json(
@@ -36,6 +36,8 @@ export async function POST(req: Request) {
       categoryId,
       imageUrl: imageUrl || null,
       isActive: isActive !== undefined ? Boolean(isActive) : true,
+      hasLevels: Boolean(hasLevels),
+      levels: Array.isArray(levels) ? levels : [],
       recipes: Array.isArray(recipes) ? recipes : [],
     });
 

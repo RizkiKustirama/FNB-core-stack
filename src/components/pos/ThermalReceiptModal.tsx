@@ -107,7 +107,10 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
             <div className="space-y-2 border-b border-dashed border-slate-300 pb-3">
               {order.items?.map((item: any) => (
                 <div key={item.id} className="space-y-0.5">
-                  <div className="font-bold text-slate-900">{item.product?.name}</div>
+                  <div className="font-bold text-slate-900">
+                    {item.product?.name}
+                    {item.levelName ? ` (${item.levelName})` : ''}
+                  </div>
                   <div className="flex justify-between text-[11px] text-slate-600">
                     <span>
                       {item.qty} x {formatCurrency(item.price)}

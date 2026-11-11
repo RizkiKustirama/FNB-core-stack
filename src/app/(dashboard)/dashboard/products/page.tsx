@@ -793,9 +793,10 @@ export default function ProductsPage() {
 
       {/* Modal Form Create / Edit Product */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-5 my-8">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-hidden">
+          <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden animate-in fade-in zoom-in-95">
+            {/* Sticky Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 p-4 sm:p-5 shrink-0 bg-white">
               <div>
                 <h3 className="text-base font-bold text-slate-900">
                   {editingProduct ? 'Edit Menu Jualan' : 'Tambah Menu Jualan Baru'}
@@ -812,445 +813,449 @@ export default function ProductsPage() {
               </button>
             </div>
 
-            {formError && (
-              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{formError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Product Info */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Nama Menu <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Misal: Cwie Mie Special Mbahkakung"
-                    className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
-                    required
-                  />
+            {/* Scrollable Modal Body */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
+              {formError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{formError}</span>
                 </div>
+              )}
 
-                {/* Kategori Menu */}
-                <div className="sm:col-span-2">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Kategori Menu <span className="text-rose-500">*</span>
-                  </label>
-                  {!showAddCategory ? (
-                    <div className="flex gap-2">
-                      <select
-                        value={formData.categoryId}
-                        onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                        className="flex-1 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
-                      >
-                        {categories.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        onClick={() => setShowAddCategory(true)}
-                        className="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-blue-600 font-bold text-xs rounded-xl border border-slate-200 transition"
-                        title="Tambah Kategori Baru"
-                      >
-                        + Kategori
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={newCategoryName}
-                        onChange={(e) => setNewCategoryName(e.target.value)}
-                        placeholder="Nama Kategori Baru"
-                        className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-900"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddCategory}
-                        className="px-3 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl"
-                      >
-                        Simpan
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setShowAddCategory(false)}
-                        className="px-2 py-2 text-slate-400"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Level System Switch Toggle Card */}
-                <div className="sm:col-span-2 bg-gradient-to-r from-amber-50/70 to-orange-50/40 p-3.5 rounded-2xl border border-amber-200/80 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-xs">
-                        <Flame className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <h4 className="text-xs font-bold text-slate-900">
-                          Sistem Level Kepedasan / Varian Level
-                        </h4>
-                        <p className="text-[11px] text-slate-500">
-                          Aktifkan bila menu memiliki pilihan level dengan variasi harga independen (misal: Level 0 - 8).
-                        </p>
-                      </div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.hasLevels}
-                        onChange={(e) => {
-                          const checked = e.target.checked;
-                          setFormData((prev) => ({ ...prev, hasLevels: checked }));
-                          if (checked && levelInputs.length === 0) {
-                            const min = 0;
-                            const max = 8;
-                            const initial: LevelRowInput[] = [];
-                            const defaultP = formData.price || '12000';
-                            for (let i = min; i <= max; i++) {
-                              initial.push({
-                                level: i,
-                                name: i === 0 ? 'Level 0 (Original)' : `Level ${i}`,
-                                price: defaultP,
-                              });
-                            }
-                            setLevelInputs(initial);
-                          }
-                        }}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                    </label>
-                  </div>
-                </div>
-
-                {/* If Level Toggle is OFF: Standard Single Price */}
-                {!formData.hasLevels ? (
+              <form id="productForm" onSubmit={handleSubmit} className="space-y-4">
+                {/* Product Info */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Harga Jual (Rp) <span className="text-rose-500">*</span>
+                      Nama Menu <span className="text-rose-500">*</span>
                     </label>
                     <input
-                      type="number"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      placeholder="25000"
-                      className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
-                      required={!formData.hasLevels}
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="Misal: Cwie Mie Special Mbahkakung"
+                      className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                      required
                     />
                   </div>
-                ) : (
-                  /* If Level Toggle is ON: Level Configuration & Independent Pricing */
-                  <div className="sm:col-span-2 space-y-3 pt-1">
-                    {/* Quick Generator Bar */}
-                    <div className="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3.5 space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-200/60 pb-2.5">
-                        <div>
-                          <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
-                            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-                            Quick Level Generator
-                          </span>
-                          <p className="text-[10px] text-amber-700">
-                            Generate baris level otomatis lalu sesuaikan harga masing-masing di bawah.
-                          </p>
-                        </div>
+
+                  {/* Kategori Menu */}
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Kategori Menu <span className="text-rose-500">*</span>
+                    </label>
+                    {!showAddCategory ? (
+                      <div className="flex gap-2">
+                        <select
+                          value={formData.categoryId}
+                          onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                          className="flex-1 px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                        >
+                          {categories.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
                         <button
                           type="button"
-                          onClick={handleGenerateLevels}
-                          className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs transition shrink-0 flex items-center gap-1 self-start sm:self-auto"
+                          onClick={() => setShowAddCategory(true)}
+                          className="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-blue-600 font-bold text-xs rounded-xl border border-slate-200 transition"
+                          title="Tambah Kategori Baru"
                         >
-                          <Sparkles className="w-3 h-3" />
-                          <span>Generate Baris</span>
+                          + Kategori
                         </button>
                       </div>
-
-                      <div className="grid grid-cols-3 gap-2 text-xs">
-                        <div>
-                          <label className="block text-[10px] font-bold text-amber-900 mb-0.5">Dari Level</label>
-                          <input
-                            type="number"
-                            value={genMinLevel}
-                            onChange={(e) => setGenMinLevel(parseInt(e.target.value) || 0)}
-                            className="w-full px-2.5 py-1 bg-white border border-amber-300 rounded-lg text-xs font-bold text-slate-800 text-center"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] font-bold text-amber-900 mb-0.5">Sampai Level</label>
-                          <input
-                            type="number"
-                            value={genMaxLevel}
-                            onChange={(e) => setGenMaxLevel(parseInt(e.target.value) || 0)}
-                            className="w-full px-2.5 py-1 bg-white border border-amber-300 rounded-lg text-xs font-bold text-slate-800 text-center"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] font-bold text-amber-900 mb-0.5">Harga Dasar (Rp)</label>
-                          <input
-                            type="number"
-                            value={genBasePrice}
-                            onChange={(e) => setGenBasePrice(e.target.value)}
-                            placeholder="12000"
-                            className="w-full px-2.5 py-1 bg-white border border-amber-300 rounded-lg text-xs font-bold text-slate-800 text-center"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Table of Level Rows */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                          <Flame className="w-3.5 h-3.5 text-amber-500" />
-                          Daftar Level & Harga Jual Independen ({levelInputs.length} Level)
-                        </label>
-                        <button
-                          type="button"
-                          onClick={addSingleLevel}
-                          className="text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                        >
-                          <Plus className="w-3 h-3" />
-                          <span>Tambah 1 Baris</span>
-                        </button>
-                      </div>
-
-                      <div className="max-h-56 overflow-y-auto space-y-1.5 pr-1">
-                        {levelInputs.length === 0 ? (
-                          <div className="p-4 text-center text-xs text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                            Belum ada baris level. Klik &quot;Generate Baris&quot; di atas atau &quot;Tambah 1 Baris&quot;.
-                          </div>
-                        ) : (
-                          levelInputs.map((row, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 hover:border-amber-300 transition"
-                            >
-                              <div className="w-16">
-                                <span className="block text-[9px] font-bold text-slate-400">Level</span>
-                                <input
-                                  type="number"
-                                  value={row.level}
-                                  onChange={(e) => updateLevelRow(idx, 'level', parseInt(e.target.value) || 0)}
-                                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-center"
-                                />
-                              </div>
-                              <div className="flex-1">
-                                <span className="block text-[9px] font-bold text-slate-400">Label Tampilan POS</span>
-                                <input
-                                  type="text"
-                                  value={row.name}
-                                  onChange={(e) => updateLevelRow(idx, 'name', e.target.value)}
-                                  placeholder="Misal: Level 1"
-                                  className="w-full px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-medium"
-                                />
-                              </div>
-                              <div className="w-28 sm:w-32">
-                                <span className="block text-[9px] font-bold text-slate-400">Harga (Rp)</span>
-                                <input
-                                  type="number"
-                                  value={row.price}
-                                  onChange={(e) => updateLevelRow(idx, 'price', e.target.value)}
-                                  placeholder="12000"
-                                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-blue-600 text-right"
-                                />
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => removeLevelRow(idx)}
-                                className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition mt-3"
-                                title="Hapus Level"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Display Image Upload Setup */}
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <label className="block text-xs font-semibold text-slate-700">
-                  Gambar / Foto Display Menu (POS)
-                </label>
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
-                    {formData.imageUrl ? (
-                      <img
-                        src={formData.imageUrl}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                      />
                     ) : (
-                      <ImageIcon className="w-6 h-6 text-slate-400" />
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newCategoryName}
+                          onChange={(e) => setNewCategoryName(e.target.value)}
+                          placeholder="Nama Kategori Baru"
+                          className="flex-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddCategory}
+                          className="px-3 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl"
+                        >
+                          Simpan
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowAddCategory(false)}
+                          className="px-2 py-2 text-slate-400"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     )}
                   </div>
 
-                  <div className="flex-1 space-y-1.5">
-                    <div className="flex items-center gap-2">
-                      <label className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 cursor-pointer flex items-center gap-1.5 transition">
-                        {uploadingImage ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
-                        ) : (
-                          <Upload className="w-3.5 h-3.5 text-blue-600" />
-                        )}
-                        <span>{uploadingImage ? 'Uploading...' : 'Upload Foto'}</span>
+                  {/* Level System Switch Toggle Card */}
+                  <div className="sm:col-span-2 bg-gradient-to-r from-amber-50 to-orange-50 p-3.5 rounded-2xl border border-amber-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shadow-xs">
+                          <Flame className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="text-xs font-bold text-slate-900">
+                            Sistem Level Kepedasan / Varian Level
+                          </h4>
+                          <p className="text-[11px] text-slate-600">
+                            Aktifkan bila menu memiliki pilihan level dengan variasi harga independen (misal: Level 0 - 8).
+                          </p>
+                        </div>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
                         <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                          disabled={uploadingImage}
-                        />
-                      </label>
-
-                      {formData.imageUrl && (
-                        <button
-                          type="button"
-                          onClick={() => setFormData({ ...formData, imageUrl: '' })}
-                          className="text-[11px] text-rose-600 font-semibold hover:underline"
-                        >
-                          Hapus Foto
-                        </button>
-                      )}
-                    </div>
-                    <input
-                      type="text"
-                      value={formData.imageUrl}
-                      onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                      placeholder="Atau masukan URL gambar (misal: https://...)"
-                      className="w-full px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-800"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Status Active Checkbox */}
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="isActiveToggle"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="w-4 h-4 accent-blue-600 rounded"
-                />
-                <label htmlFor="isActiveToggle" className="text-xs font-semibold text-slate-700 cursor-pointer">
-                  Tampilkan menu ini secara aktif di aplikasi Kasir (POS)
-                </label>
-              </div>
-
-              {/* BoM Recipe Items Setup */}
-              <div className="space-y-3 pt-3 border-t border-slate-100">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-800">Racikan Resep (BoM)</h4>
-                    <p className="text-[10px] text-slate-400">
-                      Stok bahan baku akan berkurang otomatis saat menu ini dipesan di POS.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={addRecipeRow}
-                    className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-blue-600 font-bold text-xs rounded-lg border border-slate-200 flex items-center gap-1 transition"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Bahan Baku</span>
-                  </button>
-                </div>
-
-                <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
-                  {recipeInputs.length === 0 ? (
-                    <p className="text-xs text-slate-400 text-center py-2">
-                      Belum ada racikan bahan. Klik &quot;+ Bahan Baku&quot; di atas untuk memasukkan komposisi resep.
-                    </p>
-                  ) : (
-                    recipeInputs.map((row, idx) => {
-                      const selectedMaterial = rawMaterials.find((m) => m.id === row.rawMaterialId);
-                      return (
-                        <div key={idx} className="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
-                          <select
-                            value={row.rawMaterialId}
-                            onChange={(e) => updateRecipeRow(idx, 'rawMaterialId', e.target.value)}
-                            className="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800"
-                          >
-                            {rawMaterials.map((m) => (
-                              <option key={m.id} value={m.id}>
-                                {m.name} ({m.unit})
-                              </option>
-                            ))}
-                          </select>
-
-                          <div className="flex items-center gap-1">
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={row.quantityNeeded}
-                              onChange={(e) =>
-                                updateRecipeRow(idx, 'quantityNeeded', parseFloat(e.target.value) || 0)
+                          type="checkbox"
+                          checked={formData.hasLevels}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setFormData((prev) => ({ ...prev, hasLevels: checked }));
+                            if (checked && levelInputs.length === 0) {
+                              const min = 0;
+                              const max = 8;
+                              const initial: LevelRowInput[] = [];
+                              const defaultP = formData.price || '12000';
+                              for (let i = min; i <= max; i++) {
+                                initial.push({
+                                  level: i,
+                                  name: i === 0 ? 'Level 0 (Original)' : `Level ${i}`,
+                                  price: defaultP,
+                                });
                               }
-                              placeholder="Takaran"
-                              className="w-20 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 text-center"
-                            />
-                            <span className="text-[11px] font-semibold text-slate-500 min-w-[36px]">
-                              {selectedMaterial?.unit || ''}
-                            </span>
-                          </div>
+                              setLevelInputs(initial);
+                            }
+                          }}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                      </label>
+                    </div>
+                  </div>
 
+                  {/* If Level Toggle is OFF: Standard Single Price */}
+                  {!formData.hasLevels ? (
+                    <div className="sm:col-span-2">
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Harga Jual (Rp) <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        placeholder="25000"
+                        className="w-full px-3.5 py-2 text-xs bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                        required={!formData.hasLevels}
+                      />
+                    </div>
+                  ) : (
+                    /* If Level Toggle is ON: Level Configuration & Independent Pricing */
+                    <div className="sm:col-span-2 space-y-3 pt-1">
+                      {/* Quick Generator Bar */}
+                      <div className="bg-amber-50/80 border border-amber-300 rounded-2xl p-3.5 space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-200/80 pb-2.5">
+                          <div>
+                            <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
+                              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                              Quick Level Generator
+                            </span>
+                            <p className="text-[10px] text-amber-800 font-medium">
+                              Generate baris level otomatis lalu sesuaikan harga masing-masing di bawah.
+                            </p>
+                          </div>
                           <button
                             type="button"
-                            onClick={() => removeRecipeRow(idx)}
-                            className="p-1 text-rose-500 hover:bg-rose-50 rounded-lg transition"
+                            onClick={handleGenerateLevels}
+                            className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs transition shrink-0 flex items-center gap-1 self-start sm:self-auto"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Sparkles className="w-3 h-3" />
+                            <span>Generate Baris</span>
                           </button>
                         </div>
-                      );
-                    })
+
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div>
+                            <label className="block text-[10px] font-bold text-amber-950 mb-1">Dari Level</label>
+                            <input
+                              type="number"
+                              value={genMinLevel}
+                              onChange={(e) => setGenMinLevel(parseInt(e.target.value) || 0)}
+                              className="w-full px-2.5 py-1.5 bg-white border border-amber-400 rounded-lg text-xs font-bold text-slate-900 text-center focus:ring-2 focus:ring-amber-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-amber-950 mb-1">Sampai Level</label>
+                            <input
+                              type="number"
+                              value={genMaxLevel}
+                              onChange={(e) => setGenMaxLevel(parseInt(e.target.value) || 0)}
+                              className="w-full px-2.5 py-1.5 bg-white border border-amber-400 rounded-lg text-xs font-bold text-slate-900 text-center focus:ring-2 focus:ring-amber-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-amber-950 mb-1">Harga Dasar (Rp)</label>
+                            <input
+                              type="number"
+                              value={genBasePrice}
+                              onChange={(e) => setGenBasePrice(e.target.value)}
+                              placeholder="12000"
+                              className="w-full px-2.5 py-1.5 bg-white border border-amber-400 rounded-lg text-xs font-bold text-slate-900 text-center focus:ring-2 focus:ring-amber-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Table of Level Rows */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                            <Flame className="w-3.5 h-3.5 text-amber-500" />
+                            Daftar Level & Harga Jual Independen ({levelInputs.length} Level)
+                          </label>
+                          <button
+                            type="button"
+                            onClick={addSingleLevel}
+                            className="text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                          >
+                            <Plus className="w-3 h-3" />
+                            <span>Tambah 1 Baris</span>
+                          </button>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          {levelInputs.length === 0 ? (
+                            <div className="p-4 text-center text-xs text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+                              Belum ada baris level. Klik &quot;Generate Baris&quot; di atas atau &quot;Tambah 1 Baris&quot;.
+                            </div>
+                          ) : (
+                            levelInputs.map((row, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 hover:border-amber-400 transition"
+                              >
+                                <div className="w-16">
+                                  <span className="block text-[10px] font-bold text-slate-700 mb-0.5">Level</span>
+                                  <input
+                                    type="number"
+                                    value={row.level}
+                                    onChange={(e) => updateLevelRow(idx, 'level', parseInt(e.target.value) || 0)}
+                                    className="w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 text-center focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </div>
+                                <div className="flex-1">
+                                  <span className="block text-[10px] font-bold text-slate-700 mb-0.5">Label Tampilan POS</span>
+                                  <input
+                                    type="text"
+                                    value={row.name}
+                                    onChange={(e) => updateLevelRow(idx, 'name', e.target.value)}
+                                    placeholder="Misal: Level 1"
+                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </div>
+                                <div className="w-28 sm:w-36">
+                                  <span className="block text-[10px] font-bold text-slate-700 mb-0.5">Harga Jual (Rp)</span>
+                                  <input
+                                    type="number"
+                                    value={row.price}
+                                    onChange={(e) => updateLevelRow(idx, 'price', e.target.value)}
+                                    placeholder="12000"
+                                    className="w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-extrabold text-blue-700 text-right focus:ring-2 focus:ring-blue-500"
+                                  />
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => removeLevelRow(idx)}
+                                  className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition mt-4"
+                                  title="Hapus Level"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
-              </div>
 
-              {/* Submit / Cancel Footer */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsFormOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl transition"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={formSubmitting}
-                  className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 flex items-center gap-2 transition disabled:opacity-50"
-                >
-                  {formSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Menyimpan...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>{editingProduct ? 'Simpan Perubahan' : 'Buat Menu Baru'}</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
+                {/* Display Image Upload Setup */}
+                <div className="space-y-2 pt-2 border-t border-slate-100">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Gambar / Foto Display Menu (POS)
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
+                      {formData.imageUrl ? (
+                        <img
+                          src={formData.imageUrl}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <ImageIcon className="w-6 h-6 text-slate-400" />
+                      )}
+                    </div>
+
+                    <div className="flex-1 space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <label className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 cursor-pointer flex items-center gap-1.5 transition">
+                          {uploadingImage ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-600" />
+                          ) : (
+                            <Upload className="w-3.5 h-3.5 text-blue-600" />
+                          )}
+                          <span>{uploadingImage ? 'Uploading...' : 'Upload Foto'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            disabled={uploadingImage}
+                          />
+                        </label>
+
+                        {formData.imageUrl && (
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, imageUrl: '' })}
+                            className="text-[11px] text-rose-600 font-semibold hover:underline"
+                          >
+                            Hapus Foto
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={formData.imageUrl}
+                        onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                        placeholder="Atau masukan URL gambar (misal: https://...)"
+                        className="w-full px-3 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] text-slate-800"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Active Checkbox */}
+                <div className="flex items-center gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="isActiveToggle"
+                    checked={formData.isActive}
+                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    className="w-4 h-4 accent-blue-600 rounded"
+                  />
+                  <label htmlFor="isActiveToggle" className="text-xs font-semibold text-slate-700 cursor-pointer">
+                    Tampilkan menu ini secara aktif di aplikasi Kasir (POS)
+                  </label>
+                </div>
+
+                {/* BoM Recipe Items Setup */}
+                <div className="space-y-3 pt-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800">Racikan Resep (BoM)</h4>
+                      <p className="text-[10px] text-slate-400">
+                        Stok bahan baku akan berkurang otomatis saat menu ini dipesan di POS.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={addRecipeRow}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-blue-600 font-bold text-xs rounded-lg border border-slate-200 flex items-center gap-1 transition"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Bahan Baku</span>
+                    </button>
+                  </div>
+
+                  <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-2">
+                    {recipeInputs.length === 0 ? (
+                      <p className="text-xs text-slate-400 text-center py-2">
+                        Belum ada racikan bahan. Klik &quot;+ Bahan Baku&quot; di atas untuk memasukkan komposisi resep.
+                      </p>
+                    ) : (
+                      recipeInputs.map((row, idx) => {
+                        const selectedMaterial = rawMaterials.find((m) => m.id === row.rawMaterialId);
+                        return (
+                          <div key={idx} className="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
+                            <select
+                              value={row.rawMaterialId}
+                              onChange={(e) => updateRecipeRow(idx, 'rawMaterialId', e.target.value)}
+                              className="flex-1 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-medium text-slate-800"
+                            >
+                              {rawMaterials.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                  {m.name} ({m.unit})
+                                </option>
+                              ))}
+                            </select>
+
+                            <div className="flex items-center gap-1">
+                              <input
+                                type="number"
+                                step="0.01"
+                                value={row.quantityNeeded}
+                                onChange={(e) =>
+                                  updateRecipeRow(idx, 'quantityNeeded', parseFloat(e.target.value) || 0)
+                                }
+                                placeholder="Takaran"
+                                className="w-20 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 text-center"
+                              />
+                              <span className="text-[11px] font-semibold text-slate-500 min-w-[36px]">
+                                {selectedMaterial?.unit || ''}
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => removeRecipeRow(idx)}
+                              className="p-1 text-rose-500 hover:bg-rose-50 rounded-lg transition"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            {/* Sticky Modal Footer */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsFormOpen(false)}
+                className="px-4 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-xl transition"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                form="productForm"
+                disabled={formSubmitting}
+                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 flex items-center gap-2 transition disabled:opacity-50"
+              >
+                {formSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Menyimpan...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" />
+                    <span>{editingProduct ? 'Simpan Perubahan' : 'Buat Menu Baru'}</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

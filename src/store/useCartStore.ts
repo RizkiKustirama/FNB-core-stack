@@ -28,6 +28,17 @@ interface CartStore {
   ) => void;
   removeItem: (cartItemId: string) => void;
   updateQty: (cartItemId: string, qty: number) => void;
+  setItemQty: (
+    product: {
+      id: string;
+      name: string;
+      price: number;
+      imageUrl?: string | null;
+      productLevelId?: string | null;
+      levelName?: string | null;
+    },
+    qty: number
+  ) => void;
   updateNote: (cartItemId: string, note: string) => void;
   clearCart: () => void;
   getSubtotal: () => number;
@@ -93,6 +104,39 @@ export const useCartStore = create<CartStore>((set, get) => ({
           : item
       ),
     });
+  },
+
+  setItemQty: (product, qty) => {
+    const levelId = product.productLevelId || null;
+    const cartItemId = `${product.id}_${levelId || 'REGULAR'}`;
+    const currentItems = get().items;
+    const existingIndex = currentItems.findIndex((item) => item.cartItemId === cartItemId);
+
+    if (qty <= 0) {
+      if (existingIndex > -1) {
+        set({ items: currentItems.filter((_, i) => i !== existingIndex) });
+      }
+    } else if (existingIndex > -1) {
+      const updated = [...currentItems];
+      updated[existingIndex] = { ...updated[existingIndex], qty };
+      set({ items: updated });
+    } else {
+      set({
+        items: [
+          ...currentItems,
+          {
+            cartItemId,
+            productId: product.id,
+            productLevelId: levelId,
+            levelName: product.levelName || null,
+            name: product.name,
+            price: product.price,
+            qty,
+            imageUrl: product.imageUrl,
+          },
+        ],
+      });
+    }
   },
 
   updateNote: (cartItemId, note) => {

@@ -15,7 +15,7 @@ export interface ReceiptTemplateConfig {
 export const RECEIPT_CONFIG: ReceiptTemplateConfig = {
   // === IDENTITAS KLIEN / RESTO ===
   storeName: 'CwieMie Mbah Kakung',
-  tagline: 'Authentic Cwie Mie',
+  tagline: ' ',
   address: 'Jl. KH. A. Dahlan No.18, Jombatan, Kec. Jombang, Kab. Jombang, Jawa Timur 61419',
   phone: '+62 819-1928-1755',
 

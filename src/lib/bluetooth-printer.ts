@@ -362,16 +362,25 @@ export function generateEscPosReceipt(order: any, paperWidth = 32): Uint8Array {
   // 6. Footer (Center)
   pushText('='.repeat(paperWidth) + '\n');
   push(0x1b, 0x61, 0x01);
-  pushText(`${centerText(RECEIPT_CONFIG.footerMessage)}\n`);
+
+  wrapReceiptText(RECEIPT_CONFIG.footerMessage, paperWidth).forEach((line) => {
+    pushText(`${centerText(line)}\n`);
+  });
+
   if (RECEIPT_CONFIG.footerSubMessage) {
-    pushText(`${centerText(RECEIPT_CONFIG.footerSubMessage)}\n`);
-  }
-  if (RECEIPT_CONFIG.socialMedia) {
-    pushText(`${centerText(RECEIPT_CONFIG.socialMedia)}\n`);
+    wrapReceiptText(RECEIPT_CONFIG.footerSubMessage, paperWidth).forEach((line) => {
+      pushText(`${centerText(line)}\n`);
+    });
   }
 
-  // Feed 4 lines so it clears the cutter
-  pushText('\n\n\n\n');
+  if (RECEIPT_CONFIG.socialMedia) {
+    wrapReceiptText(RECEIPT_CONFIG.socialMedia, paperWidth).forEach((line) => {
+      pushText(`${centerText(line)}\n`);
+    });
+  }
+
+  // Feed 6 lines so it completely clears the cutter / tear-bar
+  pushText('\n\n\n\n\n\n');
 
   return new Uint8Array(bytes);
 }
@@ -438,7 +447,7 @@ export async function testPrintBluetooth(): Promise<boolean> {
     ],
   };
 
-  const bytes = generateEscPosReceipt(sampleOrder, 32);
+  const bytes = generateEscPosReceipt(sampleOrder, RECEIPT_CONFIG.paperWidth || 32);
   await writeDataInChunks(activeCharacteristic, bytes, 20, 15);
   return true;
 }

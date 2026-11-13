@@ -236,9 +236,15 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
 
             {/* Footer Message */}
             <div className="text-center pt-3 border-t border-dashed border-slate-300 text-[10px] text-slate-500">
-              <p>{RECEIPT_CONFIG.footerMessage}</p>
+              {wrapReceiptText(RECEIPT_CONFIG.footerMessage, 32).map((msgLine, idx) => (
+                <p key={`fm-${idx}`}>{msgLine}</p>
+              ))}
               {RECEIPT_CONFIG.footerSubMessage && (
-                <p className="mt-0.5">{RECEIPT_CONFIG.footerSubMessage}</p>
+                <div className="mt-0.5">
+                  {wrapReceiptText(RECEIPT_CONFIG.footerSubMessage, 32).map((subLine, idx) => (
+                    <p key={`fsub-${idx}`}>{subLine}</p>
+                  ))}
+                </div>
               )}
               {RECEIPT_CONFIG.socialMedia && (
                 <p className="mt-0.5 font-medium">{RECEIPT_CONFIG.socialMedia}</p>

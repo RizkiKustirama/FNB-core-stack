@@ -78,12 +78,18 @@ export function formatPlainTextReceipt(order: any, paperWidth = RECEIPT_CONFIG.p
 
   // Footer
   lines.push('='.repeat(paperWidth));
-  lines.push(center(RECEIPT_CONFIG.footerMessage));
+  wrapReceiptText(RECEIPT_CONFIG.footerMessage, paperWidth).forEach((line) => {
+    lines.push(center(line));
+  });
   if (RECEIPT_CONFIG.footerSubMessage) {
-    lines.push(center(RECEIPT_CONFIG.footerSubMessage));
+    wrapReceiptText(RECEIPT_CONFIG.footerSubMessage, paperWidth).forEach((line) => {
+      lines.push(center(line));
+    });
   }
   if (RECEIPT_CONFIG.socialMedia) {
-    lines.push(center(RECEIPT_CONFIG.socialMedia));
+    wrapReceiptText(RECEIPT_CONFIG.socialMedia, paperWidth).forEach((line) => {
+      lines.push(center(line));
+    });
   }
   lines.push('='.repeat(paperWidth));
 

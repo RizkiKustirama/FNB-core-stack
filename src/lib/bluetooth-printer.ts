@@ -1,6 +1,8 @@
 // Web Bluetooth API Utility for Thermal Receipt Printers (ESC/POS)
 // Compatible with Chrome on Android, Windows, Mac, Linux
 
+import { RECEIPT_CONFIG, wrapReceiptText } from './receipt-config';
+
 export interface ThermalPrinterState {
   isSupported: boolean;
   isConnected: boolean;
@@ -284,12 +286,20 @@ export function generateEscPosReceipt(order: any, paperWidth = 32): Uint8Array {
 
   // Store Title Bold (ESC E 1) & Double Height (GS ! 0x01)
   push(0x1b, 0x45, 0x01, 0x1d, 0x21, 0x01);
-  pushText('F&B RESTO & POS\n');
+  pushText(`${RECEIPT_CONFIG.storeName}\n`);
 
   // Normal text
   push(0x1d, 0x21, 0x00, 0x1b, 0x45, 0x00);
-  pushText('Jl. Kuliner No. 123, Indonesia\n');
-  pushText('Telp: 0812-3456-7890\n');
+  if (RECEIPT_CONFIG.tagline) {
+    pushText(`${centerText(RECEIPT_CONFIG.tagline)}\n`);
+  }
+
+  const addressLines = wrapReceiptText(RECEIPT_CONFIG.address, paperWidth);
+  addressLines.forEach((addrLine) => {
+    pushText(`${centerText(addrLine)}\n`);
+  });
+
+  pushText(`${centerText('Telp: ' + RECEIPT_CONFIG.phone)}\n`);
 
   // Divider
   pushText('='.repeat(paperWidth) + '\n');
@@ -352,9 +362,13 @@ export function generateEscPosReceipt(order: any, paperWidth = 32): Uint8Array {
   // 6. Footer (Center)
   pushText('='.repeat(paperWidth) + '\n');
   push(0x1b, 0x61, 0x01);
-  pushText('Terima kasih atas kunjungan Anda!\n');
-  pushText('Simpan struk ini sebagai\n');
-  pushText('bukti pembayaran.\n');
+  pushText(`${centerText(RECEIPT_CONFIG.footerMessage)}\n`);
+  if (RECEIPT_CONFIG.footerSubMessage) {
+    pushText(`${centerText(RECEIPT_CONFIG.footerSubMessage)}\n`);
+  }
+  if (RECEIPT_CONFIG.socialMedia) {
+    pushText(`${centerText(RECEIPT_CONFIG.socialMedia)}\n`);
+  }
 
   // Feed 4 lines so it clears the cutter
   pushText('\n\n\n\n');

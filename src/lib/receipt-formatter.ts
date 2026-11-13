@@ -1,7 +1,9 @@
 // Helper for Plain Text Receipt Formatting (WhatsApp Share & Preview)
 // Formatted for standard 32-character receipt paper width
 
-export function formatPlainTextReceipt(order: any, paperWidth = 32): string {
+import { RECEIPT_CONFIG, wrapReceiptText } from './receipt-config';
+
+export function formatPlainTextReceipt(order: any, paperWidth = RECEIPT_CONFIG.paperWidth || 32): string {
   const padTwoColumn = (left: string, right: string) => {
     const spaceCount = paperWidth - left.length - right.length;
     if (spaceCount < 1) {
@@ -27,9 +29,15 @@ export function formatPlainTextReceipt(order: any, paperWidth = 32): string {
 
   // Header
   lines.push('='.repeat(paperWidth));
-  lines.push(center('F&B RESTO & POS'));
-  lines.push(center('Jl. Kuliner No. 123, ID'));
-  lines.push(center('Telp: 0812-3456-7890'));
+  lines.push(center(RECEIPT_CONFIG.storeName));
+  if (RECEIPT_CONFIG.tagline) {
+    lines.push(center(RECEIPT_CONFIG.tagline));
+  }
+  const addressLines = wrapReceiptText(RECEIPT_CONFIG.address, paperWidth);
+  addressLines.forEach((addrLine) => {
+    lines.push(center(addrLine));
+  });
+  lines.push(center(`Telp: ${RECEIPT_CONFIG.phone}`));
   lines.push('='.repeat(paperWidth));
 
   // Metadata
@@ -70,17 +78,21 @@ export function formatPlainTextReceipt(order: any, paperWidth = 32): string {
 
   // Footer
   lines.push('='.repeat(paperWidth));
-  lines.push(center('Terima kasih atas kunjungan!'));
-  lines.push(center('Simpan nota ini sebagai'));
-  lines.push(center('bukti pembayaran.'));
+  lines.push(center(RECEIPT_CONFIG.footerMessage));
+  if (RECEIPT_CONFIG.footerSubMessage) {
+    lines.push(center(RECEIPT_CONFIG.footerSubMessage));
+  }
+  if (RECEIPT_CONFIG.socialMedia) {
+    lines.push(center(RECEIPT_CONFIG.socialMedia));
+  }
   lines.push('='.repeat(paperWidth));
 
   return lines.join('\n');
 }
 
 export function buildWhatsAppShareUrl(order: any, customerPhone = ''): string {
-  const receiptText = formatPlainTextReceipt(order, 32);
-  const intro = `*NOTA PEMBAYARAN - F&B RESTO*\n\n\`\`\`\n${receiptText}\n\`\`\`\n\n_Terima kasih atas kunjungan Anda!_`;
+  const receiptText = formatPlainTextReceipt(order, RECEIPT_CONFIG.paperWidth || 32);
+  const intro = `*NOTA PEMBAYARAN - ${RECEIPT_CONFIG.storeName.toUpperCase()}*\n\n\`\`\`\n${receiptText}\n\`\`\`\n\n_${RECEIPT_CONFIG.footerMessage}_`;
   const encoded = encodeURIComponent(intro);
 
   if (customerPhone.trim()) {

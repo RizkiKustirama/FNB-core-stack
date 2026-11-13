@@ -19,6 +19,7 @@ import {
   ThermalPrinterState,
 } from '@/lib/bluetooth-printer';
 import { buildWhatsAppShareUrl } from '@/lib/receipt-formatter';
+import { RECEIPT_CONFIG, wrapReceiptText } from '@/lib/receipt-config';
 
 interface ThermalReceiptModalProps {
   order: any;
@@ -141,10 +142,21 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
             {/* Store Header */}
             <div className="text-center space-y-0.5 border-b border-dashed border-slate-300 pb-3">
               <div className="font-bold text-sm tracking-wider uppercase text-slate-900">
-                F&B RESTO & POS
+                {RECEIPT_CONFIG.storeName}
               </div>
-              <div className="text-[10px] text-slate-500">Jl. Kuliner No. 123, Indonesia</div>
-              <div className="text-[10px] text-slate-500">Telp: 0812-3456-7890</div>
+              {RECEIPT_CONFIG.tagline && (
+                <div className="text-[10px] text-slate-600 font-medium">
+                  {RECEIPT_CONFIG.tagline}
+                </div>
+              )}
+              {wrapReceiptText(RECEIPT_CONFIG.address, 36).map((addrLine, idx) => (
+                <div key={idx} className="text-[10px] text-slate-500">
+                  {addrLine}
+                </div>
+              ))}
+              <div className="text-[10px] text-slate-500">
+                Telp: {RECEIPT_CONFIG.phone}
+              </div>
             </div>
 
             {/* Transaction Metadata */}
@@ -224,8 +236,13 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
 
             {/* Footer Message */}
             <div className="text-center pt-3 border-t border-dashed border-slate-300 text-[10px] text-slate-500">
-              <p>Terima kasih atas kunjungan Anda!</p>
-              <p className="mt-0.5">Simpan nota ini sebagai bukti pembayaran.</p>
+              <p>{RECEIPT_CONFIG.footerMessage}</p>
+              {RECEIPT_CONFIG.footerSubMessage && (
+                <p className="mt-0.5">{RECEIPT_CONFIG.footerSubMessage}</p>
+              )}
+              {RECEIPT_CONFIG.socialMedia && (
+                <p className="mt-0.5 font-medium">{RECEIPT_CONFIG.socialMedia}</p>
+              )}
             </div>
           </div>
         </div>

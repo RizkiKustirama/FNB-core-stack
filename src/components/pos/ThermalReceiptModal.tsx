@@ -1,8 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { formatCurrency } from '@/lib/utils';
-import { Printer, CheckCircle2, X } from 'lucide-react';
+import {
+  Printer,
+  CheckCircle2,
+  X,
+  Zap,
+  MessageCircle,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react';
+import {
+  printReceiptBluetooth,
+  connectBluetoothPrinter,
+  reconnectKnownPrinter,
+  subscribePrinterState,
+  ThermalPrinterState,
+} from '@/lib/bluetooth-printer';
+import { buildWhatsAppShareUrl } from '@/lib/receipt-formatter';
 
 interface ThermalReceiptModalProps {
   order: any;
@@ -11,14 +27,59 @@ interface ThermalReceiptModalProps {
 }
 
 export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptModalProps) {
+  const [printerState, setPrinterState] = useState<ThermalPrinterState>({
+    isSupported: false,
+    isConnected: false,
+    isConnecting: false,
+    deviceName: null,
+    error: null,
+  });
+  const [isPrintingBt, setIsPrintingBt] = useState<boolean>(false);
+  const [printError, setPrintError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = subscribePrinterState((state) => {
+      setPrinterState(state);
+    });
+    return () => unsubscribe();
+  }, []);
+
   if (!isOpen || !order) return null;
 
-  const handlePrint = () => {
+  const handleStandardPrint = () => {
     window.print();
   };
 
+  const handlePrintBluetooth = async () => {
+    try {
+      setIsPrintingBt(true);
+      setPrintError(null);
+
+      if (!printerState.isConnected) {
+        const ok = await reconnectKnownPrinter();
+        if (!ok) {
+          await connectBluetoothPrinter();
+        }
+      }
+
+      await printReceiptBluetooth(order);
+    } catch (err: any) {
+      if (err.name !== 'NotFoundError') {
+        setPrintError(err.message || 'Gagal mencetak ke printer Bluetooth.');
+      }
+    } finally {
+      setIsPrintingBt(false);
+    }
+  };
+
+  const handleShareWhatsApp = () => {
+    const url = buildWhatsAppShareUrl(order);
+    window.open(url, '_blank');
+  };
+
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      {/* Print CSS optimized for 58mm & 80mm thermal printers */}
       <style jsx global>{`
         @media print {
           body * {
@@ -32,16 +93,20 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
             position: absolute;
             left: 0;
             top: 0;
-            width: 80mm;
-            padding: 10px;
+            width: 58mm;
+            max-width: 58mm;
+            padding: 4px;
+            margin: 0;
             font-family: monospace;
+            font-size: 11px;
+            line-height: 1.25;
             color: #000;
             background: #fff;
           }
         }
       `}</style>
 
-      <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 my-8">
+      <div className="bg-white rounded-3xl max-w-sm w-full p-5 sm:p-6 shadow-2xl space-y-4 my-8 animate-in fade-in zoom-in-95">
         {/* Header */}
         <div className="flex items-start justify-between border-b border-slate-100 pb-3">
           <div>
@@ -60,15 +125,24 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
           </button>
         </div>
 
+        {printError && (
+          <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-xl flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span className="text-[11px]">{printError}</span>
+          </div>
+        )}
+
         {/* Printable Thermal Receipt Box */}
-        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 max-h-[55vh] overflow-y-auto">
+        <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 max-h-[50vh] overflow-y-auto">
           <div
             id="thermal-receipt-printable"
-            className="bg-white p-4 rounded-lg border border-slate-200/80 shadow-xs font-mono text-xs text-slate-800 space-y-3"
+            className="bg-white p-3.5 rounded-lg border border-slate-200/80 shadow-xs font-mono text-xs text-slate-900 space-y-3"
           >
             {/* Store Header */}
             <div className="text-center space-y-0.5 border-b border-dashed border-slate-300 pb-3">
-              <div className="font-bold text-sm tracking-wider uppercase text-slate-900">F&B RESTO & POS</div>
+              <div className="font-bold text-sm tracking-wider uppercase text-slate-900">
+                F&B RESTO & POS
+              </div>
               <div className="text-[10px] text-slate-500">Jl. Kuliner No. 123, Indonesia</div>
               <div className="text-[10px] text-slate-500">Telp: 0812-3456-7890</div>
             </div>
@@ -77,7 +151,7 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
             <div className="text-[11px] space-y-1 border-b border-dashed border-slate-300 pb-3">
               <div className="flex justify-between">
                 <span>No. Struk:</span>
-                <span className="font-bold">{order.orderNumber}</span>
+                <span className="font-bold text-slate-900">{order.orderNumber}</span>
               </div>
               <div className="flex justify-between">
                 <span>Tanggal:</span>
@@ -99,7 +173,7 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
               </div>
               <div className="flex justify-between">
                 <span>Metode:</span>
-                <span className="font-bold">{order.paymentMethod}</span>
+                <span className="font-bold text-slate-900">{order.paymentMethod}</span>
               </div>
             </div>
 
@@ -111,11 +185,13 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
                     {item.product?.name}
                     {item.levelName ? ` (${item.levelName})` : ''}
                   </div>
-                  <div className="flex justify-between text-[11px] text-slate-600">
+                  <div className="flex justify-between text-[11px] text-slate-700">
                     <span>
                       {item.qty} x {formatCurrency(item.price)}
                     </span>
-                    <span className="font-bold">{formatCurrency(item.subtotal)}</span>
+                    <span className="font-bold text-slate-900">
+                      {formatCurrency(item.subtotal)}
+                    </span>
                   </div>
                   {item.note && (
                     <div className="text-[10px] text-slate-500 italic pl-2">
@@ -130,15 +206,15 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
             <div className="space-y-1 text-xs pt-1">
               <div className="flex justify-between font-bold text-slate-900 text-sm">
                 <span>TOTAL:</span>
-                <span>{formatCurrency(order.totalAmount)}</span>
+                <span className="text-blue-700">{formatCurrency(order.totalAmount)}</span>
               </div>
               {order.paymentMethod === 'CASH' && (
                 <>
-                  <div className="flex justify-between text-[11px] text-slate-600">
+                  <div className="flex justify-between text-[11px] text-slate-700">
                     <span>Bayar (Tunai):</span>
                     <span>{formatCurrency(order.cashReceived)}</span>
                   </div>
-                  <div className="flex justify-between text-[11px] text-slate-600 font-bold">
+                  <div className="flex justify-between text-[11px] text-slate-900 font-bold">
                     <span>Kembalian:</span>
                     <span>{formatCurrency(order.changeAmount)}</span>
                   </div>
@@ -154,20 +230,65 @@ export function ThermalReceiptModal({ order, isOpen, onClose }: ThermalReceiptMo
           </div>
         </div>
 
-        {/* Modal Actions */}
-        <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+        {/* Action Buttons */}
+        <div className="space-y-2 pt-2 border-t border-slate-100">
+          {/* Web Bluetooth Fast Print Button */}
+          {printerState.isSupported && (
+            <button
+              type="button"
+              onClick={handlePrintBluetooth}
+              disabled={isPrintingBt || printerState.isConnecting}
+              className="w-full py-2.5 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-500/20 flex items-center justify-center gap-2 transition active:scale-[0.99] disabled:opacity-50"
+            >
+              {isPrintingBt || printerState.isConnecting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Menyambung & Mencetak...</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4 text-amber-300 fill-amber-300" />
+                  <span>
+                    {printerState.isConnected
+                      ? `Cetak Cepat Bluetooth (${printerState.deviceName || 'Thermal'})`
+                      : printerState.deviceName
+                      ? `Sambung & Cetak (${printerState.deviceName})`
+                      : 'Sambungkan & Cetak Bluetooth'}
+                  </span>
+                </>
+              )}
+            </button>
+          )}
+
+          {/* Secondary Actions Row */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={handleStandardPrint}
+              className="py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition active:scale-95"
+              title="Cetak via dialog browser / PDF"
+            >
+              <Printer className="w-3.5 h-3.5 text-amber-400" />
+              <span>Cetak Biasa</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleShareWhatsApp}
+              className="py-2.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300/80 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition active:scale-95"
+              title="Kirim Struk via WhatsApp"
+            >
+              <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Struk WA</span>
+            </button>
+          </div>
+
           <button
-            onClick={handlePrint}
-            className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition"
-          >
-            <Printer className="w-4 h-4 text-amber-400" />
-            <span>Cetak Struk</span>
-          </button>
-          <button
+            type="button"
             onClick={onClose}
-            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 transition"
+            className="w-full py-2 text-xs font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition"
           >
-            <span>Transaksi Baru</span>
+            Selesai / Transaksi Baru
           </button>
         </div>
       </div>

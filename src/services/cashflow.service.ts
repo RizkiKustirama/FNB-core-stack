@@ -1,12 +1,29 @@
 import { prisma } from '@/lib/prisma';
 
+function parseDateRange(startDate?: string, endDate?: string) {
+  if (!startDate && !endDate) return undefined;
+  const createdAt: any = {};
+  if (startDate) {
+    const [y, m, d] = startDate.split('-').map(Number);
+    createdAt.gte = new Date(y, m - 1, d, 0, 0, 0, 0);
+  }
+  if (endDate) {
+    const [y, m, d] = endDate.split('-').map(Number);
+    createdAt.lte = new Date(y, m - 1, d, 23, 59, 59, 999);
+  } else if (startDate) {
+    // If only startDate is given, filter that whole day
+    const [y, m, d] = startDate.split('-').map(Number);
+    createdAt.lte = new Date(y, m - 1, d, 23, 59, 59, 999);
+  }
+  return createdAt;
+}
+
 export async function getCashflowLogs(type?: 'IN' | 'OUT', startDate?: string, endDate?: string) {
   const where: any = {};
   if (type) where.type = type;
-  if (startDate || endDate) {
-    where.createdAt = {};
-    if (startDate) where.createdAt.gte = new Date(startDate);
-    if (endDate) where.createdAt.lte = new Date(endDate);
+  const dateRange = parseDateRange(startDate, endDate);
+  if (dateRange) {
+    where.createdAt = dateRange;
   }
 
   const logs = await prisma.cashflowLog.findMany({
@@ -54,10 +71,9 @@ export async function createExpense(data: {
 
 export async function getProfitAndLossReport(startDate?: string, endDate?: string) {
   const where: any = {};
-  if (startDate || endDate) {
-    where.createdAt = {};
-    if (startDate) where.createdAt.gte = new Date(startDate);
-    if (endDate) where.createdAt.lte = new Date(endDate);
+  const dateRange = parseDateRange(startDate, endDate);
+  if (dateRange) {
+    where.createdAt = dateRange;
   }
 
   const logs = await prisma.cashflowLog.findMany({ where });

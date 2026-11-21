@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Filter,
+  Calendar,
 } from 'lucide-react';
 
 interface CashflowLog {
@@ -33,6 +34,8 @@ export default function CashflowPage() {
   const [loading, setLoading] = useState<boolean>(true);
 
   // Filters & Pagination
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
@@ -44,7 +47,7 @@ export default function CashflowPage() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, typeFilter, categoryFilter, sortDate, sortAmount]);
+  }, [searchQuery, typeFilter, categoryFilter, sortDate, sortAmount, startDate, endDate]);
 
   // Modal Expense State
   const [isAddOpen, setIsAddOpen] = useState<boolean>(false);
@@ -55,10 +58,15 @@ export default function CashflowPage() {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
 
-  const fetchLogs = async () => {
+  const fetchLogs = async (start = startDate, end = endDate) => {
     try {
       setLoading(true);
-      const res = await fetch('/api/v1/cashflow');
+      const params = new URLSearchParams();
+      if (start) params.append('startDate', start);
+      if (end) params.append('endDate', end);
+
+      const url = `/api/v1/cashflow${params.toString() ? `?${params.toString()}` : ''}`;
+      const res = await fetch(url);
       const data = await res.json();
       if (data.success) setLogs(data.data);
     } catch (err) {
@@ -69,8 +77,8 @@ export default function CashflowPage() {
   };
 
   useEffect(() => {
-    fetchLogs();
-  }, []);
+    fetchLogs(startDate, endDate);
+  }, [startDate, endDate]);
 
   const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +103,7 @@ export default function CashflowPage() {
       setAmount('');
       setDescription('');
       setProofImageUrl('');
-      fetchLogs();
+      fetchLogs(startDate, endDate);
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -121,8 +129,8 @@ export default function CashflowPage() {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-  const totalIn = logs.filter((l) => l.type === 'IN').reduce((sum, l) => sum + l.amount, 0);
-  const totalOut = logs.filter((l) => l.type === 'OUT').reduce((sum, l) => sum + l.amount, 0);
+  const totalIn = filteredLogs.filter((l) => l.type === 'IN').reduce((sum, l) => sum + l.amount, 0);
+  const totalOut = filteredLogs.filter((l) => l.type === 'OUT').reduce((sum, l) => sum + l.amount, 0);
 
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / ITEMS_PER_PAGE));
   const paginatedLogs = filteredLogs.slice(
@@ -145,11 +153,12 @@ export default function CashflowPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={fetchLogs}
-            className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition"
+            onClick={() => fetchLogs(startDate, endDate)}
+            className="p-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition flex items-center gap-1.5 text-xs font-semibold"
             title="Refresh Data"
           >
-            <RefreshCw className="w-4 h-4" />
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-blue-600' : ''}`} />
+            <span className="hidden sm:inline">Segarkan</span>
           </button>
           <button
             onClick={() => setIsAddOpen(true)}
@@ -204,68 +213,159 @@ export default function CashflowPage() {
       </div>
 
       {/* Filter & Search Controls */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
-        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          {/* Dropdown Tipe */}
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="ALL">Semua Transaksi</option>
-            <option value="IN">Uang Masuk (+)</option>
-            <option value="OUT">Uang Keluar (-)</option>
-          </select>
+      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+        {/* Row 1: Date Filter Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-50 px-2.5 py-1.5 rounded-xl border border-slate-200">
+              <Calendar className="w-3.5 h-3.5 text-blue-600" />
+              <span>Periode:</span>
+            </div>
 
-          {/* Category Filter */}
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="ALL">Semua Kategori</option>
-            <option value="POS_SALES">Penjualan POS</option>
-            <option value="SUPPLIES_PURCHASE">Belanja Bahan</option>
-            <option value="UTILITIES">Utilitas (Listrik/Air/Net)</option>
-            <option value="SALARY">Gaji Karyawan</option>
-            <option value="OTHER">Lain-lain</option>
-          </select>
+            {/* Dari Tanggal */}
+            <div className="flex items-center gap-1.5">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                title="Dari Tanggal"
+              />
+              <span className="text-xs font-medium text-slate-400">s/d</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                title="Sampai Tanggal"
+              />
+            </div>
 
-          {/* Dropdown Urut Waktu */}
-          <select
-            value={sortDate}
-            onChange={(e) => {
-              setSortDate(e.target.value);
-              setSortAmount('ALL');
-            }}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="DESC">Terbaru</option>
-            <option value="ASC">Terlama</option>
-          </select>
+            {/* Quick Action: Hari Ini */}
+            <button
+              type="button"
+              onClick={() => {
+                const now = new Date();
+                const y = now.getFullYear();
+                const m = String(now.getMonth() + 1).padStart(2, '0');
+                const d = String(now.getDate()).padStart(2, '0');
+                const today = `${y}-${m}-${d}`;
+                setStartDate(today);
+                setEndDate(today);
+              }}
+              className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-xl border border-blue-200 transition active:scale-95"
+            >
+              Hari Ini
+            </button>
 
-          {/* Dropdown Urut Nominal */}
-          <select
-            value={sortAmount}
-            onChange={(e) => setSortAmount(e.target.value)}
-            className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="ALL">Semua Nominal</option>
-            <option value="DESC">Terbesar</option>
-            <option value="ASC">Terkecil</option>
-          </select>
+            {/* Quick Action: Reset / Semua */}
+            {(startDate || endDate) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setStartDate('');
+                  setEndDate('');
+                }}
+                className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold rounded-xl border border-slate-200 transition active:scale-95 flex items-center gap-1"
+                title="Hapus filter tanggal (tampilkan semua)"
+              >
+                <X className="w-3 h-3" />
+                <span>Semua Waktu</span>
+              </button>
+            )}
+          </div>
+
+          {/* Active Period Badge */}
+          {startDate && (
+            <div className="text-[11px] font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-100 flex items-center gap-1">
+              <span>Menampilkan:</span>
+              <span className="font-bold">
+                {new Date(startDate + 'T00:00:00').toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })}
+              </span>
+              {endDate && endDate !== startDate && (
+                <>
+                  <span>s/d</span>
+                  <span className="font-bold">
+                    {new Date(endDate + 'T00:00:00').toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Search Input */}
-        <div className="relative w-full md:w-64">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari keterangan / user..."
-            className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-900 transition"
-          />
+        {/* Row 2: Type, Category, Sorting & Search */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            {/* Dropdown Tipe */}
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="ALL">Semua Transaksi</option>
+              <option value="IN">Uang Masuk (+)</option>
+              <option value="OUT">Uang Keluar (-)</option>
+            </select>
+
+            {/* Category Filter */}
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="ALL">Semua Kategori</option>
+              <option value="POS_SALES">Penjualan POS</option>
+              <option value="SUPPLIES_PURCHASE">Belanja Bahan</option>
+              <option value="UTILITIES">Utilitas (Listrik/Air/Net)</option>
+              <option value="SALARY">Gaji Karyawan</option>
+              <option value="OTHER">Lain-lain</option>
+            </select>
+
+            {/* Dropdown Urut Waktu */}
+            <select
+              value={sortDate}
+              onChange={(e) => {
+                setSortDate(e.target.value);
+                setSortAmount('ALL');
+              }}
+              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="DESC">Terbaru</option>
+              <option value="ASC">Terlama</option>
+            </select>
+
+            {/* Dropdown Urut Nominal */}
+            <select
+              value={sortAmount}
+              onChange={(e) => setSortAmount(e.target.value)}
+              className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="ALL">Semua Nominal</option>
+              <option value="DESC">Terbesar</option>
+              <option value="ASC">Terkecil</option>
+            </select>
+          </div>
+
+          {/* Search Input */}
+          <div className="relative w-full md:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari keterangan / user..."
+              className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white text-slate-900 transition"
+            />
+          </div>
         </div>
       </div>
 
